@@ -184,3 +184,46 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('contactModal');
     if (modal) modal.setAttribute('aria-hidden', 'true');
 });
+
+// ===== 우주별 배경 (Canvas) =====
+(function () {
+    const canvas = document.getElementById("stars");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let stars = [], starMouse = { x: -9999, y: -9999, active: false }, dpr = 1;
+
+    function resizeStars() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr;
+        canvas.style.width = innerWidth + "px"; canvas.style.height = innerHeight + "px";
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const count = Math.min(2600, Math.floor(innerWidth * innerHeight / 650));
+        stars = Array.from({ length: count }, () => ({
+            x: Math.random() * innerWidth, y: Math.random() * innerHeight,
+            ox: 0, oy: 0, r: .4 + Math.random() * 1.4, a: .3 + Math.random() * .55,
+            phase: Math.random() * Math.PI * 2
+        }));
+        stars.forEach(s => { s.ox = s.x; s.oy = s.y });
+    }
+    function drawStars(t) {
+        ctx.clearRect(0, 0, innerWidth, innerHeight);
+        for (const s of stars) {
+            let tx = s.ox, ty = s.oy;
+            const dx = starMouse.x - s.x, dy = starMouse.y - s.y, dist = Math.hypot(dx, dy);
+            // 반경 150px 안에서만 마우스 쪽으로 모여들고, 150px 밖으로 벗어나면 더 이상 따라가지 않습니다.
+            if (starMouse.active && dist < 150) {
+                const force = (1 - dist / 150) * .95;
+                tx = s.x + dx * force; ty = s.y + dy * force;
+            }
+            s.x += (tx - s.x) * .14; s.y += (ty - s.y) * .14;
+            const pulse = s.a * (.85 + .15 * Math.sin(t * .001 + s.phase));
+            ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(225,232,248,${pulse})`; ctx.fill();
+        }
+        requestAnimationFrame(drawStars);
+    }
+    window.addEventListener("resize", resizeStars);
+    window.addEventListener("pointermove", e => { starMouse.x = e.clientX; starMouse.y = e.clientY; starMouse.active = true });
+    window.addEventListener("pointerleave", () => starMouse.active = false);
+    resizeStars(); requestAnimationFrame(drawStars);
+})();
