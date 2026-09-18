@@ -1,8 +1,8 @@
 :root {
     --accent-1: #6d80c9;
-    --accent-2: #7c5bc9;
-    --accent-3: #8f5fd1;
-    --accent-grad: linear-gradient(135deg, #6d80c9 0%, #7c5bc9 50%, #8f5fd1 100%);
+    --accent-2: #8b74bd;
+    --accent-3: #a17fbf;
+    --accent-grad: linear-gradient(135deg, #6d80c9 0%, #8b74bd 55%, #a17fbf 100%);
     --accent-text: #e7e5ee;
 }
 
@@ -95,6 +95,10 @@ body {
         }
 
 /* Web standards / accessibility helpers */
+.py-12 .text-base{
+    word-break: keep-all;
+    max-width: 700px;
+}
 .skip-link {
     position: fixed;
     top: -100px;
@@ -137,7 +141,7 @@ button {
 }
 .bg-white {
     background: var(--accent-grad) !important;
-    color: #ffffff !important;
+    color: #17151f !important;
 }
 .border-white {
     border-color: var(--accent-2) !important;
@@ -147,7 +151,7 @@ button {
 }
 .hover\:bg-white:hover {
     background: var(--accent-grad) !important;
-    color: #ffffff !important;
+    color: #17151f !important;
 }
 .hover\:border-white:hover {
     border-color: var(--accent-1) !important;
@@ -166,38 +170,4 @@ button {
 }
 .animate-pulse-glow {
     background: radial-gradient(circle, rgba(109, 128, 201, .06), rgba(139, 116, 189, .04) 55%, transparent 78%) !important;
-}
-
-/* 연결된 시연 사이트(iframe) 배경은 그라데이션 대신 흰색으로 고정 */
-#project-iframe.bg-white {
-    background: #ffffff !important;
-    color: initial !important;
-}
-
-/* 메인 버튼 호버 시 라이트 글로우 + 살짝 확대 */
-.btn-glow {
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.btn-glow:hover {
-    transform: scale(1.045);
-    box-shadow: 0 0 24px rgba(139, 91, 201, 0.5);
-}
-
-/* Live Metrics Bar 호버 시 하얀빛 드롭쉐도우 (약하게) */
-.metric-glow {
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.metric-glow:hover {
-    box-shadow: 0 0 12px rgba(255, 255, 255, 0.18);
-    border-color: rgba(255, 255, 255, 0.16);
-    transform: translateY(-2px);
-}
-
-/* FLAGSHIP PROJECT 카드 버튼 호버 시 은은한 효과 */
-.btn-glow-sm {
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-.btn-glow-sm:hover {
-    transform: scale(1.05) !important;
-    box-shadow: 0 0 16px rgba(255, 255, 255, 0.45) !important;
 }
