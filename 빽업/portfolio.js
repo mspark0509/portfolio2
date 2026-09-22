@@ -99,7 +99,7 @@ function setViewportMode(mode) {
     const btnMobile = document.getElementById('vp-btn-mobile');
 
     if (mode === 'mobile') {
-        mockupContainer.style.width = '430px';
+        mockupContainer.style.width = '375px';
         btnMobile.className = "px-3 py-1 rounded text-xs font-mono bg-neutral-800 text-white flex items-center gap-1.5 transition-colors";
         btnDesktop.className = "px-3 py-1 rounded text-xs font-mono text-neutral-400 hover:text-white flex items-center gap-1.5 transition-colors";
     } else {
@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const force = (1 - dist / 150) * .95;
                 tx = s.x + dx * force; ty = s.y + dy * force;
             }
-            s.x += (tx - s.x) * .09; s.y += (ty - s.y) * .09;
+            s.x += (tx - s.x) * .14; s.y += (ty - s.y) * .14;
             const pulse = s.a * (.85 + .15 * Math.sin(t * s.tw + s.phase));
 
             if (s.big) {
