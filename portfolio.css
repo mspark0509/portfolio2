@@ -4,95 +4,203 @@
     --accent-3: #8f5fd1;
     --accent-grad: linear-gradient(135deg, #6d80c9 0%, #7c5bc9 50%, #8f5fd1 100%);
     --accent-text: #e7e5ee;
+
+    /* 헤더 / 푸터 배경색 */
+    --bar-bg: #12121E;
+
+    /* 메인 타이틀: 화이트 → 실버 그라데이션 */
+    --silver-grad: linear-gradient(135deg, #ffffff 0%, #eceef4 28%, #b4b9c6 58%, #f4f5f9 82%, #ffffff 100%);
 }
 
 body {
-            background-color: #0a0a0a;
-            color: var(--accent-text);
-            font-family: 'Inter', 'Noto Sans KR', sans-serif;
-            overflow-x: hidden;
-        }
+    background-color: #000000;
+    color: var(--accent-text);
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    overflow-x: hidden;
+}
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0a0a0a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #33304a;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4a4468;
-        }
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #000000;
+}
+::-webkit-scrollbar-thumb {
+    background: #33304a;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #4a4468;
+}
 
-        /* Ambient Noise Canvas/Grid */
-        .grid-bg {
-            background-image: linear-gradient(to right, rgba(139, 128, 189, 0.035) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(139, 128, 189, 0.035) 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
+/* ===== 우주 은하 배경 ===== */
+.galaxy-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 55% 42% at 14% 18%, rgba(109, 128, 201, .035), transparent 70%),
+        radial-gradient(ellipse 48% 38% at 86% 26%, rgba(143, 95, 209, .03), transparent 70%),
+        radial-gradient(ellipse 60% 45% at 72% 88%, rgba(58, 96, 196, .025), transparent 70%),
+        radial-gradient(ellipse 42% 34% at 20% 84%, rgba(176, 92, 196, .02), transparent 70%),
+        radial-gradient(ellipse 90% 70% at 50% 45%, #03030a 0%, #000000 100%);
+}
+/* 은하수 띠 (별 배치의 밀집 영역과 같은 각도/위치: 중심 50% 45%, -24deg) */
+.galaxy-bg::before {
+    content: '';
+    position: absolute;
+    left: -25%;
+    top: 26%;
+    width: 150%;
+    height: 38%;
+    background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(205, 196, 255, .055), rgba(150, 165, 255, .028) 45%, transparent 75%);
+    filter: blur(42px);
+    transform: rotate(-24deg);
+    animation: galaxyDrift 90s ease-in-out infinite alternate;
+}
+/* 은하 중심부의 은은한 빛 */
+.galaxy-bg::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    width: 38vmax;
+    height: 16vmax;
+    margin: -8vmax 0 0 -19vmax;
+    background: radial-gradient(ellipse at center, rgba(235, 225, 255, .05), rgba(160, 140, 235, .025) 40%, transparent 70%);
+    filter: blur(28px);
+    transform: rotate(-24deg);
+}
+@keyframes galaxyDrift {
+    from { transform: rotate(-24deg) translate3d(-2%, 0, 0); opacity: .9; }
+    to   { transform: rotate(-24deg) translate3d(2%, 0, 0);  opacity: 1; }
+}
 
-        .glass-panel {
-            background: rgba(18, 17, 24, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(139, 128, 189, 0.12);
-        }
+/* Ambient Grid (우주 배경과 어울리도록 가장자리로 갈수록 옅어지게) */
+.grid-bg {
+    background-image: linear-gradient(to right, rgba(139, 128, 189, 0.018) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(139, 128, 189, 0.018) 1px, transparent 1px);
+    background-size: 40px 40px;
+    -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 0%, transparent 78%);
+    mask-image: radial-gradient(ellipse at 50% 40%, #000 0%, transparent 78%);
+}
 
-        .glass-nav {
-            background: rgba(10, 9, 14, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(139, 128, 189, 0.10);
-        }
+.glass-panel {
+    background: rgba(18, 17, 24, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(139, 128, 189, 0.12);
+}
 
-        /* Glow effect on hover */
-        .hover-glow {
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .hover-glow:hover {
-            box-shadow: 0 0 22px rgba(139, 116, 189, 0.18);
-            border-color: rgba(139, 116, 189, 0.4);
-            transform: translateY(-2px);
-        }
+/* 헤더 */
+.glass-nav {
+    background: var(--bar-bg);
+    border-bottom: 1px solid rgba(139, 128, 189, 0.16);
+}
+/* 모바일 메뉴 드롭다운도 헤더와 같은 색으로 */
+#mobileMenu {
+    background-color: var(--bar-bg);
+}
 
-        /* Text gradient effect */
-        .text-gradient {
-            background: var(--accent-grad);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+/* 푸터 */
+.site-footer {
+    background-color: var(--bar-bg);
+    border-top: 1px solid rgba(139, 128, 189, 0.16);
+}
 
-        /* Screen mockup frame transition */
-        .mockup-viewport {
-            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
+/* ===== 페이지 섹션: 한 화면 = 한 섹션 (100vh) =====
+   - 위쪽 여백(6rem)은 고정 헤더(5rem) 아래에서 내용이 시작되도록 확보한 공간입니다.
+   - min-height 이므로, 내용이 정말 넘칠 때(모바일 등)는 잘리지 않고 늘어납니다. */
+.page-section {
+    box-sizing: border-box;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding-top: 6rem;
+    padding-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
 
-        /* Active Navigation indicator underline */
-        .nav-link {
-            position: relative;
-        }
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0%;
-            height: 2px;
-            background: var(--accent-grad);
-            transition: width 0.3s ease;
-        }
-        .nav-link.active::after {
-            width: 100%;
-        }
+/* 데스크톱(가로 1024px 이상): 한 화면에 한 섹션만 보이도록
+   1) 화면 높이가 --fit-ref(px)보다 낮으면 페이지 전체(rem 기준)를 비례 축소
+   2) 섹션 단위 스크롤 스냅 (휠/터치로 한 섹션씩 이동) */
+@media (min-width: 1024px) and (min-height: 560px) {
+    html {
+        --fit-ref: 920;
+        font-size: clamp(11px, calc(100vh * 16 / var(--fit-ref)), 16px);
+        scroll-snap-type: y mandatory;
+    }
+    .page-section {
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+    }
+    .site-footer {
+        scroll-snap-align: end;
+    }
+}
 
-        /* Custom Toast notification */
-        #toast {
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
+/* 프로젝트 미리보기 섹션은 제목/탭/프레임이 꽉 차므로 헤더와 간격을 조금 더 확보 */
+#section-preview {
+    padding-top: 6.5rem;
+}
+
+/* 소감 섹션: 한글이 단어 중간에서 끊기지 않도록 */
+#section-reflections p {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
+
+/* Glow effect on hover */
+.hover-glow {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hover-glow:hover {
+    box-shadow: 0 0 22px rgba(139, 116, 189, 0.18);
+    border-color: rgba(139, 116, 189, 0.4);
+    transform: translateY(-2px);
+}
+
+/* Text gradient effect (메인 타이틀: 화이트 + 실버) */
+.text-gradient {
+    background: var(--silver-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 0 22px rgba(215, 220, 240, .12));
+}
+
+/* Screen mockup frame transition */
+.mockup-viewport {
+    transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Active Navigation indicator underline */
+.nav-link {
+    position: relative;
+}
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background: var(--accent-grad);
+    transition: width 0.3s ease;
+}
+.nav-link.active::after {
+    width: 100%;
+}
+
+/* Custom Toast notification */
+#toast {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
 
 /* Web standards / accessibility helpers */
 .skip-link {
@@ -165,7 +273,7 @@ button {
     --tw-shadow-color: rgba(139, 116, 189, .28) !important;
 }
 .animate-pulse-glow {
-    background: radial-gradient(circle, rgba(109, 128, 201, .06), rgba(139, 116, 189, .04) 55%, transparent 78%) !important;
+    background: radial-gradient(circle, rgba(109, 128, 201, .03), rgba(139, 116, 189, .02) 55%, transparent 78%) !important;
 }
 
 /* 연결된 시연 사이트(iframe) 배경은 그라데이션 대신 흰색으로 고정 */
