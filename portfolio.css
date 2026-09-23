@@ -134,7 +134,11 @@ body {
         font-size: clamp(11px, calc(100vh * 16 / var(--fit-ref)), 16px);
         scroll-snap-type: y mandatory;
     }
-    .page-section {
+    /* .project-detail-spacer(프로젝트 상세의 주요기능·이슈 블록)도 정지 지점으로 등록해
+       두번째 섹션(개요)에서 스크롤을 이어갈 때 중간 단계 없이 푸터로 바로 건너뛰며
+       내용과 겹쳐 보이던 현상을 방지 */
+    .page-section,
+    .project-detail-spacer {
         scroll-snap-align: start;
         scroll-snap-stop: always;
     }
@@ -392,5 +396,26 @@ button {
 
     .project-detail-spacer {
         padding: 2.5rem 0 3rem;
+    }
+}
+
+/* 데스크톱 스크롤 스냅에서는 개요 / 주요기능·이슈 섹션도 1페이지·3페이지의 다른 섹션들처럼
+   한 화면(100vh)을 가득 채워야, 마지막 스크롤에서 푸터가 미리 비쳐 보이지 않고
+   스냅 전환도 매끄럽게 이어집니다. */
+@media (min-width: 1024px) and (min-height: 560px) {
+    #detail-haevichi .page-section,
+    #detail-byheydey .page-section {
+        min-height: calc(100vh + 6rem);
+        min-height: calc(100dvh + 6rem);
+        padding-bottom: 2.5rem;
+    }
+
+    .project-detail-spacer {
+        min-height: 100vh;
+        min-height: 100dvh;
+        padding: 6rem 0 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 }
