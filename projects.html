@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>PORTFOLIO.DEV | 프로젝트 소개</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0a0a0a',
+                        cardBg: '#121212',
+                        cardHover: '#1a1a1a',
+                        borderDark: '#262626',
+                        accentWhite: '#ffffff',
+                        subtleGray: '#a1a1aa'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans KR', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': { opacity: '0.4', transform: 'scale(1)' },
+                            '50%': { opacity: '0.8', transform: 'scale(1.05)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-8px)' }
+                        },
+                        scanline: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(1000%)' }
+                        }
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 6s ease-in-out infinite',
+                        'float': 'float 4s ease-in-out infinite',
+                        'scanline': 'scanline 8s linear infinite'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&amp;family=Inter:wght@300;400;500;600;700;800;900&amp;family=Noto+Sans+KR:wght@300;400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <link href="./projects.css" rel="stylesheet" />
+</head>
+
+<body class="relative min-h-screen selection:bg-white selection:text-black">
+    <div aria-hidden="true" class="galaxy-bg"></div><canvas aria-hidden="true"
+        class="fixed inset-0 z-0 pointer-events-none" id="stars"></canvas><a class="skip-link" href="#main">본문
+        바로가기</a>
+    <div class="fixed inset-0 grid-bg pointer-events-none z-0"></div>
+    <div
+        class="fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/[0.02] rounded-full blur-3xl pointer-events-none animate-pulse-glow z-0">
+    </div>
+    <!-- Scroll Progress Bar -->
+    <div aria-hidden="true" class="fixed top-0 left-0 h-[3px] bg-white z-50 transition-all duration-150"
+        id="scrollProgress" style="width: 0%;"></div>
+    <header class="fixed top-0 left-0 w-full z-40 glass-nav transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a class="flex items-center gap-3 group" href="index.html">
+                <div
+                    class="w-10 h-10 bg-white text-black font-black flex items-center justify-center text-xl rounded-lg group-hover:rotate-6 transition-transform duration-300">
+                    P
+                </div>
+                <div>
+                    <span
+                        class="font-mono text-sm tracking-wider font-bold block text-white group-hover:text-neutral-300 transition-colors">PORTFOLIO.DEV</span>
+                    <span class="text-[10px] text-neutral-400 block tracking-widest uppercase">Haevichi &amp;
+                        ByHeyDey</span>
+                </div>
+            </a>
+            <!-- Desktop Menu Navigation -->
+            <nav aria-label="주 메뉴" class="hidden md:flex items-center gap-8">
+                <button
+                    class="nav-link text-sm font-medium text-neutral-300 hover:text-white transition-colors py-1 flex items-center gap-2"
+                    id="nav-main" onclick="window.location.href='index.html'" type="button">
+                    <i class="fa-solid fa-house text-xs"></i> 메인 페이지
+                </button>
+                <button
+                    class="nav-link active text-sm font-medium text-neutral-300 hover:text-white transition-colors py-1 flex items-center gap-2"
+                    id="nav-projects" onclick="window.location.href='projects.html'" type="button">
+                    <i class="fa-solid fa-laptop-code text-xs"></i> 프로젝트 소개
+                </button>
+                <button
+                    class="nav-link text-sm font-medium text-neutral-300 hover:text-white transition-colors py-1 flex items-center gap-2"
+                    id="nav-resume" onclick="window.location.href='resume.html'" type="button">
+                    <i class="fa-solid fa-user-pen text-xs"></i> 소감 &amp; 자소서
+                </button>
+            </nav>
+            <!-- Quick Action Button -->
+            <div class="hidden sm:flex items-center gap-3">
+                <a class="px-4 py-2 text-xs font-mono border border-neutral-700 hover:border-white rounded-lg text-neutral-300 hover:text-white transition-all flex items-center gap-2"
+                    href="https://github.com/mspark0509" rel="noopener noreferrer" target="_blank">
+                    <i class="fa-brands fa-github"></i> GitHub
+                </a>
+                <button
+                    class="px-4 py-2 text-xs font-medium bg-white text-black hover:bg-neutral-200 rounded-lg transition-all font-semibold shadow-lg shadow-white/5"
+                    onclick="openContactModal()" type="button">
+                    문의하기
+                </button>
+            </div>
+            <!-- Mobile Hamburger Button -->
+            <button aria-controls="mobileMenu" aria-expanded="false" aria-label="모바일 메뉴 열기"
+                class="md:hidden p-2 text-neutral-300 hover:text-white focus:outline-none" id="mobileMenuBtn"
+                onclick="toggleMobileMenu()" type="button">
+                <i class="fa-solid fa-bars text-xl" id="menuIcon"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu Dropdown -->
+        <div class="hidden md:hidden border-b border-neutral-800 bg-black/95 px-6 py-6 space-y-4" id="mobileMenu">
+            <button
+                class="block w-full text-left py-2 text-base font-medium text-neutral-200 hover:text-white border-b border-neutral-800/50"
+                onclick="window.location.href='index.html'" type="button">
+                <i class="fa-solid fa-house mr-3 text-xs text-neutral-400"></i> 메인 페이지
+            </button>
+            <button
+                class="block w-full text-left py-2 text-base font-medium text-neutral-200 hover:text-white border-b border-neutral-800/50"
+                onclick="window.location.href='projects.html'" type="button">
+                <i class="fa-solid fa-laptop-code mr-3 text-xs text-neutral-400"></i> 프로젝트 소개
+            </button>
+            <button
+                class="block w-full text-left py-2 text-base font-medium text-neutral-200 hover:text-white border-b border-neutral-800/50"
+                onclick="window.location.href='resume.html'" type="button">
+                <i class="fa-solid fa-user-pen mr-3 text-xs text-neutral-400"></i> 소감 &amp; 자소서
+            </button>
+            <div class="pt-2 flex gap-3">
+                <a class="flex-1 text-center py-2 text-xs font-mono border border-neutral-700 rounded-lg text-neutral-300"
+                    href="https://github.com/mspark0509" rel="noopener noreferrer" target="_blank">
+                    <i class="fa-brands fa-github mr-1"></i> GitHub
+                </a>
+                <button class="flex-1 text-center py-2 text-xs font-semibold bg-white text-black rounded-lg"
+                    onclick="openContactModal(); toggleMobileMenu()" type="button">
+                    문의하기
+                </button>
+            </div>
+        </div>
+    </header>
+    <!-- Main Dynamic Content Wrapper -->
+    <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" id="main">
+<section aria-labelledby="heading-2" class="tab-content "
+            id="page-projects">
+            <!-- Section 1: 제목 / 프로젝트 선택 / 실시간 미리보기 -->
+            <div class="page-section" id="section-preview">
+                <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-8">
+                    <div class="text-center md:text-left">
+                        <span class="text-xs font-mono text-neutral-500 block mb-1">// DETAILED PROJECT DEEP-DIVE</span>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2" id="heading-2">
+                            프로젝트 상세 소개
+                            및 실시간 미리보기</h1>
+                        <p class="text-neutral-400 text-sm max-w-3xl">
+                            각 프로젝트의 인터랙티브 화면을 직접 확인하고, 구현에 사용된 핵심 기술 스택 및 개발 노하우를 확인해보세요.
+                        </p>
+                    </div>
+                    <!-- Project Selector Buttons -->
+                    <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3">
+                        <button aria-controls="detail-haevichi" aria-selected="true"
+                            class="px-6 py-3 rounded-xl border border-white bg-white text-black font-bold text-sm transition-all flex items-center gap-3 shadow-lg shadow-white/5"
+                            id="tab-btn-haevichi" onclick="selectProjectDetail('haevichi')" role="tab" type="button">
+                            <i class="fa-solid fa-hotel text-xs"></i>
+                            <span>1. 해비치 호텔 &amp; 리조트</span>
+                        </button>
+                        <button aria-controls="detail-byheydey" aria-selected="false"
+                            class="px-6 py-3 rounded-xl border border-neutral-800 bg-neutral-900 text-neutral-400 font-medium text-sm hover:border-neutral-600 hover:text-white transition-all flex items-center gap-3"
+                            id="tab-btn-byheydey" onclick="selectProjectDetail('byheydey')" role="tab" type="button">
+                            <i class="fa-solid fa-couch text-xs"></i>
+                            <span>2. 바이헤이데이 (ByHeyDey)</span>
+                        </button>
+                    </div>
+                </div>
+                <div
+                    class="glass-panel rounded-2xl overflow-hidden border border-neutral-800 flex flex-col mx-auto w-full max-w-7xl">
+                    <!-- Frame Header Controls -->
+                    <div
+                        class="bg-neutral-900 px-6 py-4 border-b border-neutral-800 flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="flex gap-1.5">
+                                <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
+                                <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
+                                <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
+                            </div>
+                            <div class="h-4 w-[1px] bg-neutral-800 mx-1"></div>
+                            <span class="font-mono text-xs text-neutral-300 font-semibold"
+                                id="preview-title-badge">Haevichi
+                                Hotel &amp; Resort</span>
+                            <a class="hidden sm:inline-flex items-center gap-1 font-mono text-[11px] text-neutral-500 hover:text-white transition-colors"
+                                href="https://mspark0509.github.io/haevichi-test-server/" id="preview-url-link"
+                                rel="noopener noreferrer" target="_blank">
+                                <i class="fa-solid fa-link text-[10px]"></i> <span
+                                    id="preview-url-text">mspark0509.github.io/haevichi-test-server/</span>
+                            </a>
+                        </div>
+                        <!-- Viewport Device Switcher -->
+                        <div class="flex items-center gap-2 bg-neutral-950 p-1 rounded-lg border border-neutral-800">
+                            <button
+                                class="px-3 py-1 rounded text-xs font-mono bg-neutral-800 text-white flex items-center gap-1.5 transition-colors"
+                                id="vp-btn-desktop" onclick="setViewportMode('desktop')" type="button">
+                                <i class="fa-solid fa-desktop text-[11px]"></i> Desktop
+                            </button>
+                            <button
+                                class="px-3 py-1 rounded text-xs font-mono text-neutral-400 hover:text-white flex items-center gap-1.5 transition-colors"
+                                id="vp-btn-mobile" onclick="setViewportMode('mobile')" type="button">
+                                <i class="fa-solid fa-mobile-screen-button text-[11px]"></i> Mobile (430px)
+                            </button>
+                            <button aria-label="프로젝트 미리보기 새 창으로 열기"
+                                class="px-2 py-1 text-neutral-400 hover:text-white transition-colors"
+                                onclick="toggleFullscreenIframe()" title="전체화면 열기" type="button">
+                                <i class="fa-solid fa-expand text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Frame Viewer Window -->
+                    <div
+                        class="relative bg-neutral-950 py-7 flex items-stretch justify-center overflow-hidden h-[560px] md:h-[720px]">
+                        <div class="mockup-viewport w-full max-w-full px-2 sm:px-4 flex flex-col" id="mockup-container">
+                            <div
+                                class="w-full flex-1 min-h-0 rounded-xl overflow-hidden border border-neutral-800 shadow-2xl relative bg-black">
+                                <iframe class="absolute inset-0 w-full h-full border-0 bg-white" id="project-iframe"
+                                    loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+                                    src="https://mspark0509.github.io/haevichi-test-server/"
+                                    title="해비치 또는 바이헤이데이 프로젝트 실시간 미리보기"></iframe>
+                                <!-- Overlay Note Banner in case of IFrame sandbox/X-Frame restrictions -->
+                                <div
+                                    class="absolute bottom-4 right-4 z-20 glass-panel px-4 py-2 rounded-lg border border-neutral-700 flex items-center gap-3">
+                                    <span class="text-xs text-neutral-300">원문 사이트 새 창에서 보기:</span>
+                                    <a class="px-3 py-1 bg-white text-black text-xs font-bold rounded hover:bg-neutral-200 transition-colors"
+                                        href="https://mspark0509.github.io/haevichi-test-server/" id="direct-site-btn"
+                                        rel="noopener noreferrer" target="_blank">
+                                        새 탭으로 열기 <i class="fa-solid fa-arrow-up-right-from-square ml-1 text-[10px]"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Detail Content Block 1: HAEVICHI -->
+            <div aria-labelledby="tab-btn-haevichi" id="detail-haevichi" role="tabpanel" tabindex="0">
+                <div class="page-section" id="haevichi-overview">
+                    <!-- Overview Header -->
+                    <div class="flex flex-col gap-8">
+                        <div class="glass-panel p-8 rounded-2xl border border-neutral-800">
+                            <span class="text-xs font-mono text-neutral-500 block mb-2">// 01. OVERVIEW</span>
+                            <h3 class="text-2xl font-bold text-white mb-6">해비치 호텔 &amp; 리조트 (Haevichi Hotel &amp;
+                                Resort)
+                            </h3>
+                            <p class="text-neutral-300 text-sm leading-relaxed mb-6 font-light">
+                                제주에 위치한 해비치 호텔 &amp; 리조트의 브랜딩 경험을 디지털 스크린 위에 구현한 프로젝트입니다. 럭셔리 호스피탈리티 산업에 걸맞은 차분하면서도 명확한
+                                정보
+                                전달 구조, 객실 이미지 비주얼의 시각적 극대화, 정갈한 세리프 &amp; 산세리프 서체 조합을 활용하여 브랜드 신뢰도를 도모했습니다.
+                            </p>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-6 border-t border-neutral-800">
+                                <div>
+                                    <span class="text-[11px] font-mono text-neutral-500 block">프로젝트 유형</span>
+                                    <span class="text-sm font-semibold text-white">리조트 &amp; 호텔 웹사이트</span>
+                                </div>
+                                <div>
+                                    <span class="text-[11px] font-mono text-neutral-500 block">역할</span>
+                                    <span class="text-sm font-semibold text-white">프론트엔드 퍼블리싱 &amp; UI</span>
+                                </div>
+                                <div>
+                                    <span class="text-[11px] font-mono text-neutral-500 block">반응형 대응</span>
+                                    <span class="text-sm font-semibold text-white">데스크탑 / 타블렛 / 모바일</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="glass-panel p-8 rounded-2xl border border-neutral-800 flex flex-col justify-between">
+                            <div>
+                                <span class="text-xs font-mono text-neutral-500 block mb-2">// TECH STACK</span>
+                                <h4 class="text-lg font-bold text-white mb-6">핵심 기술 스택</h4>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between border-b border-neutral-800/80 pb-3">
+                                        <span class="text-xs text-neutral-300">Markup &amp; Styling</span>
+                                        <span class="text-xs font-mono text-neutral-400">HTML5, CSS3 Custom
+                                            Properties</span>
+                                    </div>
+                                    <div class="flex items-center justify-between border-b border-neutral-800/80 pb-3">
+                                        <span class="text-xs text-neutral-300">Interactions</span>
+                                        <span class="text-xs font-mono text-neutral-400">Vanilla JS (ES6+)</span>
+                                    </div>
+                                    <div class="flex items-center justify-between border-b border-neutral-800/80 pb-3">
+                                        <span class="text-xs text-neutral-300">Slider Library</span>
+                                        <span class="text-xs font-mono text-neutral-400">Swiper.js Carousel</span>
+                                    </div>
+                                    <div class="flex items-center justify-between border-b border-neutral-800/80 pb-3">
+                                        <span class="text-xs text-neutral-300">Layout Engine</span>
+                                        <span class="text-xs font-mono text-neutral-400">Flexbox &amp; Grid
+                                            Systems</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <a class="mt-6 py-2.5 w-full bg-neutral-900 border border-neutral-700 hover:border-white text-neutral-200 hover:text-white rounded-lg text-xs font-mono text-center block transition-all"
+                                href="https://github.com/mspark0509/haevichi-test-server" rel="noopener noreferrer"
+                                target="_blank">
+                                <i class="fa-brands fa-github mr-2"></i>GitHub Repository
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-detail-spacer" id="haevichi-features">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Key Features & Design Highlights -->
+                        <div class="glass-panel p-7 rounded-2xl border border-neutral-800">
+                            <span class="text-xs font-mono text-neutral-500 block mb-3">// KEY FEATURES</span>
+                            <h3 class="text-xl font-bold text-white mb-5">주요 기능 및 구현 하이라이트</h3>
+                            <div class="grid grid-cols-1 gap-4">
+                                <div
+                                    class="bg-neutral-950 p-5 rounded-xl border border-neutral-800/80 flex items-start gap-4">
+                                    <div
+                                        class="w-10 h-10 shrink-0 rounded-lg bg-neutral-900 flex items-center justify-center text-white border border-neutral-800">
+                                        <i class="fa-solid fa-images text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-base font-semibold text-white mb-1.5">1. 메인 히어로 스파이더 슬라이더</h4>
+                                        <p class="text-sm text-neutral-400 leading-relaxed">
+                                            Swiper API를 활용해 고화질 풀스크린 슬라이드와 자동 재생, 썸네일 컨트롤러를 커스텀 연동하여 시각적 몰입감을 고조시켰습니다.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div
+                                    class="bg-neutral-950 p-5 rounded-xl border border-neutral-800/80 flex items-start gap-4">
+                                    <div
+                                        class="w-10 h-10 shrink-0 rounded-lg bg-neutral-900 flex items-center justify-center text-white border border-neutral-800">
+                                        <i class="fa-solid fa-list-check text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-base font-semibold text-white mb-1.5">2. 객실 &amp; 부대시설 필터 카탈로그
+                                        </h4>
+                                        <p class="text-sm text-neutral-400 leading-relaxed">
+                                            다채로운 타입의 객실 및 웰니스 시설을 카테고리별로 정갈하게 분류하고, 클릭 시 자연스러운 애니메이션 효과와 함께 정보를 노출하도록
+                                            설계했습니다.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div
+                                    class="bg-neutral-950 p-5 rounded-xl border border-neutral-800/80 flex items-start gap-4">
+                                    <div
+                                        class="w-10 h-10 shrink-0 rounded-lg bg-neutral-900 flex items-center justify-center text-white border border-neutral-800">
+                                        <i class="fa-solid fa-mobile-retro text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-base font-semibold text-white mb-1.5">3. 반응형 드로어 내비게이션</h4>
+                                        <p class="text-sm text-neutral-400 leading-relaxed">
+                                            모바일 디바이스 환경에서 터치 친화적인 풀스크린 오버레이 메뉴와 아코디언 드롭다운 서브메뉴를 구현하여 직관적인 이동을 지원합니다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Challenges & Engineering Problem Solving -->
+                        <div class="glass-panel p-7 rounded-2xl border border-neutral-800">
+                            <span class="text-xs font-mono text-neutral-500 block mb-3">// CHALLENGES &amp;
+                                SOLUTIONS</span>
+                            <h3 class="text-xl font-bold text-white mb-5">개발 과정에서의 이슈 및 해결 방안</h3>
+                            <div class="space-y-4">
+                                <div
+                                    class="p-5 rounded-xl bg-neutral-950 border border-neutral-800/80 flex flex-col md:flex-row md:items-start gap-4">
+                                    <span
+                                        class="px-3 py-1 rounded bg-neutral-900 text-white font-mono text-xs border border-neutral-800 shrink-0">이슈
+                                        01</span>
+                                    <div>
+                                        <h4 class="text-base font-semibold text-white mb-1.5">고화질 비주얼 이미지로 인한 초기 로딩 속도
+                                            최적화</h4>
+                                        <p class="text-sm text-neutral-400 leading-relaxed">
+                                            해비치 브랜드 특성상 고해상도 리조트 사진이 다수 포함되어 페이지 진입 시 로딩 시간이 증가하는 문제가 있었습니다. 이미지
+                                            Lazy-Loading
+                                            기법을 적용하고, Next-gen 포맷 활용 및 WebP 최적화를 진행하여 초기 페인팅 속도를 40% 이상 향상시켰습니다.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div
+                                    class="p-5 rounded-xl bg-neutral-950 border border-neutral-800/80 flex flex-col md:flex-row md:items-start gap-4">
+                                    <span
+                                        class="px-3 py-1 rounded bg-neutral-900 text-white font-mono text-xs border border-neutral-800 shrink-0">이슈
+                                        02</span>
+                                    <div>
+                                        <h4 class="text-base font-semibold text-white mb-1.5">모바일 디바이스 가로
+                                            스크롤(Overflow-X) 방지</h4>
+                                        <p class="text-sm text-neutral-400 leading-relaxed">
+                                            슬라이더 요소와 절대 좌표(absolute)가 적용된 디자인 요소들이 일부 모바일 브라우저에서 가로 스크롤을 유발하는 현상을
+                                            발견했습니다.
+                                            Container 레벨에서의 `overflow-x: hidden` 제어와 상대적 viewport 단위(`vw`, `%`) 기반 재설계를
+                                            통해 깨끗한
+                                            레이아웃 유지를 달성했습니다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Detail Content Block 2: BYHEYDEY -->
+            <div aria-labelledby="tab-btn-byheydey" class="hidden" id="detail-byheydey" role="tabpanel" tabindex="0">
+                <div class="page-section" id="byheydey-overview">
+                    <!-- Overview Header -->
+                    <div class="flex flex-col gap-8">
+                        <div class="glass-panel p-8 rounded-2xl border border-neutral-800">
+                            <span class="text-xs font-mono text-neutral-500 block mb-2">// 02. OVERVIEW</span>
+                            <h3 class="text-2xl font-bold text-white mb-6">바이헤이데이 (ByHeyDey) 라이프스타일 가구</h3>
+                            <p class="text-neutral-300 text-sm leading-relaxed mb-6 font-light">
+                                '바이헤이데이(ByHeyDey)'는 미니멀한 디자인과 기능성을 동시에 갖춘 라이프스타일 가구 브랜드입니다. 모던한 무채색 패브릭 및 우드 텍스처를 웹
+                                인터페이스로
+                                확장하여, 여백의 미가 돋보이는 쇼룸형 웹스토어 경험을 제공합니다.
+                            </p>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-6 border-t border-neutral-800">
+                                <div>
+                                    <span class="text-[11px] font-mono text-neutral-500 block">프로젝트 유형</span>
+                                    <span class="text-sm font-semibold text-white">가구 브랜드 쇼룸 &amp; 웹스토어</span>
+                                </div>
+                                <div>
+                                    <span class="text-[11px] font-mono text-neutral-500 block">역할</span>
+                                    <span class="text-sm font-semibold text-white">웹 퍼블리싱 &amp; 프론트엔드 UI</span>
+                                </div>
+                                <div>
+                                    <span class="text-[11px] font-mono text-neutral-500 block">디자인 콘셉트</span>
+                                    <span class="text-sm font-semibold text-white">미니멀리즘 &amp; 그리드 갤러리</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="glass-panel p-8 rounded-2xl border border-neutral-800 flex flex-col justify-between">
+                            <div>
+                                <span class="text-xs font-mono text-neutral-500 block mb-2">// TECH STACK</span>
+                                <h4 class="text-lg font-bold text-white mb-6">핵심 기술 스택</h4>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between border-b border-neutral-800/80 pb-3">
+                                        <span class="text-xs text-neutral-300">Markup &amp; Styling</span>
+                                        <span class="text-xs font-mono text-neutral-400">HTML5, CSS3 Modern Grid</span>
+                                    </div>
+                                    <div class="flex items-center justify-between border-b border-neutral-800/80 pb-3">
+                                        <span class="text-xs text-neutral-300">Logic &amp; Dynamic UI</span>
+                                        <span class="text-xs font-mono text-neutral-400">Vanilla JavaScript</span>
+                                    </div>
+                                    <div class="flex items-center justify-between border-b border-neutral-800/80 pb-3">
+                                        <span class="text-xs text-neutral-300">Typography</span>
+                                        <span class="text-xs font-mono text-neutral-400">Custom Web Fonts</span>
+                                    </div>
+                                    <div class="flex items-center justify-between border-b border-neutral-800/80 pb-3">
+                                        <span class="text-xs text-neutral-300">Motion Effects</span>
+                                        <span class="text-xs font-mono text-neutral-400">CSS Transitions &amp;
+                                            Keyframes</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <a class="mt-6 py-2.5 w-full bg-neutral-900 border border-neutral-700 hover:border-white text-neutral-200 hover:text-white rounded-lg text-xs font-mono text-center block transition-all"
+                                href="https://github.com/wjdqhal/byheydey-fin" rel="noopener noreferrer"
+                                target="_blank">
+                                <i class="fa-brands fa-github mr-2"></i>GitHub Repository
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-detail-spacer" id="byheydey-features">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Key Features & Design Highlights -->
+                        <div class="glass-panel p-7 rounded-2xl border border-neutral-800">
+                            <span class="text-xs font-mono text-neutral-500 block mb-3">// KEY FEATURES</span>
+                            <h3 class="text-xl font-bold text-white mb-5">주요 기능 및 구현 하이라이트</h3>
+                            <div class="grid grid-cols-1 gap-4">
+                                <div
+                                    class="bg-neutral-950 p-5 rounded-xl border border-neutral-800/80 flex items-start gap-4">
+                                    <div
+                                        class="w-10 h-10 shrink-0 rounded-lg bg-neutral-900 flex items-center justify-center text-white border border-neutral-800">
+                                        <i class="fa-solid fa-border-all text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-base font-semibold text-white mb-1.5">1. 미니멀리스틱 그리드 카드 UI</h4>
+                                        <p class="text-sm text-neutral-400 leading-relaxed">
+                                            가구 상품의 질감과 컬러감을 돋보이게 하는 1px 경계선과 넉넉한 여백 설계로 감각적인 쇼룸 느낌을 연출했습니다.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div
+                                    class="bg-neutral-950 p-5 rounded-xl border border-neutral-800/80 flex items-start gap-4">
+                                    <div
+                                        class="w-10 h-10 shrink-0 rounded-lg bg-neutral-900 flex items-center justify-center text-white border border-neutral-800">
+                                        <i class="fa-solid fa-magnifying-glass-plus text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-base font-semibold text-white mb-1.5">2. 인터랙티브 호버 Zoom &amp;
+                                            Detail</h4>
+                                        <p class="text-sm text-neutral-400 leading-relaxed">
+                                            마우스 호버 시 자연스러운 줌 효과와 함께 제품의 서브 정보, 색상 옵션 프리뷰가 부드럽게 노출되도록 CSS transition을
+                                            세밀하게 조율했습니다.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div
+                                    class="bg-neutral-950 p-5 rounded-xl border border-neutral-800/80 flex items-start gap-4">
+                                    <div
+                                        class="w-10 h-10 shrink-0 rounded-lg bg-neutral-900 flex items-center justify-center text-white border border-neutral-800">
+                                        <i class="fa-solid fa-bag-shopping text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-base font-semibold text-white mb-1.5">3. 모의 카트 &amp; 룩북 인터랙션
+                                        </h4>
+                                        <p class="text-sm text-neutral-400 leading-relaxed">
+                                            사용자가 관심 있는 가구 항목을 선택하고 수량을 조절해볼 수 있는 클라이언트 측 인메모리 장바구니 로직을 JavaScript로
+                                            구성했습니다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Development Highlights -->
+                        <div class="glass-panel p-7 rounded-2xl border border-neutral-800">
+                            <span class="text-xs font-mono text-neutral-500 block mb-3">// CHALLENGES &amp;
+                                SOLUTIONS</span>
+                            <h3 class="text-xl font-bold text-white mb-5">개발 과정에서의 이슈 및 해결 방안</h3>
+                            <div class="space-y-4">
+                                <div
+                                    class="p-5 rounded-xl bg-neutral-950 border border-neutral-800/80 flex flex-col md:flex-row md:items-start gap-4">
+                                    <span
+                                        class="px-3 py-1 rounded bg-neutral-900 text-white font-mono text-xs border border-neutral-800 shrink-0">이슈
+                                        01</span>
+                                    <div>
+                                        <h4 class="text-base font-semibold text-white mb-1.5">복잡한 제품 그리드 레이아웃의 디바이스별 일관성
+                                            유지</h4>
+                                        <p class="text-sm text-neutral-400 leading-relaxed">
+                                            다양한 비율의 가구 사진들이 그리드 내에서 깨지거나 비대칭으로 노출되는 문제가 발생했습니다. CSS
+                                            `grid-template-columns`와
+                                            `object-fit: cover` 속성을 결합하여 이미지 비율 왜곡 없이 정돈된 열과 행을 일정하게 유지시켰습니다.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div
+                                    class="p-5 rounded-xl bg-neutral-950 border border-neutral-800/80 flex flex-col md:flex-row md:items-start gap-4">
+                                    <span
+                                        class="px-3 py-1 rounded bg-neutral-900 text-white font-mono text-xs border border-neutral-800 shrink-0">이슈
+                                        02</span>
+                                    <div>
+                                        <h4 class="text-base font-semibold text-white mb-1.5">심플함 속 가독성 및 UI 피드백 강화</h4>
+                                        <p class="text-sm text-neutral-400 leading-relaxed">
+                                            무채색 미니멀 디자인 특성상 사용자가 버튼 클릭이나 상호작용 지점을 오인할 수 있는 우려가 있었습니다. 버튼 액션 시 미세한 햅틱 감성의
+                                            scale
+                                            애니메이션 및 하이라이트 테두리를 추가해 가독성과 조작성을 모두 확보했습니다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="site-footer relative z-10 border-t text-neutral-400 py-12">
+        <div
+            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-white text-black font-bold flex items-center justify-center text-base rounded">
+                    P
+                </div>
+                <div>
+                    <span class="font-mono text-xs text-white block">PORTFOLIO // HAEVICHI &amp; BYHEYDEY</span>
+                    <span class="text-[11px] text-neutral-500">Designed with Modern Black &amp; White Aesthetics</span>
+                </div>
+            </div>
+            <!-- Quick Footer Navigation -->
+            <div class="flex items-center gap-6 text-xs font-mono text-neutral-400">
+                <button class="hover:text-white transition-colors" onclick="window.location.href='index.html'" type="button">메인</button>
+                <button class="hover:text-white transition-colors" onclick="window.location.href='projects.html'"
+                    type="button">프로젝트</button>
+                <button class="hover:text-white transition-colors" onclick="window.location.href='resume.html'"
+                    type="button">소감&amp;자소서</button>
+                <a class="hover:text-white transition-colors" href="https://github.com/mspark0509"
+                    rel="noopener noreferrer" target="_blank">GitHub</a>
+            </div>
+            <!-- Back to top button -->
+            <button aria-label="맨 위로 이동"
+                class="w-10 h-10 rounded-lg border border-neutral-800 bg-neutral-900 hover:border-neutral-600 text-neutral-300 hover:text-white flex items-center justify-center transition-all"
+                onclick="scrollToTop()" title="맨 위로 가기" type="button">
+                <i class="fa-solid fa-arrow-up text-xs"></i>
+            </button>
+        </div>
+        <div
+            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-neutral-900 text-center md:text-left text-[11px] text-neutral-600">
+            © 2026 Creative Portfolio. All Rights Reserved. Built with HTML5, CSS3, Tailwind CSS &amp; Vanilla JS.
+        </div>
+    </footer>
+    <div aria-hidden="true" aria-labelledby="contact-title" aria-modal="true"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"
+        id="contactModal" role="dialog">
+        <div
+            class="glass-panel w-full max-w-lg rounded-2xl border border-neutral-700 p-8 relative shadow-2xl bg-neutral-950">
+            <button aria-label="문의 창 닫기" class="absolute top-6 right-6 text-neutral-400 hover:text-white text-lg"
+                onclick="closeContactModal()" type="button">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <span class="text-xs font-mono text-neutral-500 block mb-1">// GET IN TOUCH</span>
+            <h3 class="text-2xl font-bold text-white mb-2" id="contact-title">문의 및 메시지 전송</h3>
+            <p class="text-xs text-neutral-400 mb-6">아래 양식을 입력해 주시면 확인 후 신속하게 답변드리겠습니다.</p>
+            <form class="space-y-4" onsubmit="handleContactSubmit(event)">
+                <div>
+                    <label class="block text-xs font-mono text-neutral-300 mb-1" for="contact-name">성함 / 기업명</label>
+                    <input autocomplete="name"
+                        class="w-full px-4 py-2.5 rounded-lg bg-neutral-900 border border-neutral-800 text-white text-sm focus:outline-none focus:border-white transition-colors"
+                        id="contact-name" name="name" placeholder="홍길동" required="" type="text" />
+                </div>
+                <div>
+                    <label class="block text-xs font-mono text-neutral-300 mb-1" for="contact-email">이메일 주소</label>
+                    <input autocomplete="email"
+                        class="w-full px-4 py-2.5 rounded-lg bg-neutral-900 border border-neutral-800 text-white text-sm focus:outline-none focus:border-white transition-colors"
+                        id="contact-email" name="email" placeholder="example@email.com" required="" type="email" />
+                </div>
+                <div>
+                    <label class="block text-xs font-mono text-neutral-300 mb-1" for="contact-message">메시지 내용</label>
+                    <textarea
+                        class="w-full px-4 py-2.5 rounded-lg bg-neutral-900 border border-neutral-800 text-white text-sm focus:outline-none focus:border-white transition-colors resize-none"
+                        id="contact-message" name="message" placeholder="문의하실 내용을 자유롭게 작성해주세요..." required=""
+                        rows="4"></textarea>
+                </div>
+                <button
+                    class="w-full py-3.5 bg-white text-black font-bold text-xs rounded-lg hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2"
+                    type="submit">
+                    <i class="fa-solid fa-paper-plane text-xs"></i> 메시지 발송하기
+                </button>
+            </form>
+        </div>
+    </div>
+    <!-- Toast Notification Widget -->
+    <div class="fixed bottom-6 right-6 z-50 glass-panel px-5 py-3 rounded-xl border border-neutral-700 text-xs text-white flex items-center gap-3 opacity-0 translate-y-4 pointer-events-none shadow-xl"
+        id="toast">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+        <span id="toastMessage">성공적으로 전송되었습니다!</span>
+    </div>
+
+    <script defer src="./projects.js"></script>
+</body>
+</html>
