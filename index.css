@@ -449,3 +449,57 @@ button {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
 }
+
+
+/* =========================================================
+   메인 버튼 2개: 호버한 쪽에 불이 들어오고 다른 쪽은 꺼짐
+   - 기본: "프로젝트 상세보기"가 켜져 있고 "소감 및 자소서 읽기"는 꺼진 상태
+   - "소감 및 자소서 읽기"에 마우스를 올리면 → 소감 버튼이 켜지고 상세보기 버튼이 꺼짐
+   - "프로젝트 상세보기"에 올리면 → 기본 상태 그대로 (상세보기 켜짐)
+   - 켜짐/꺼짐은 위에 덧씌운 막의 투명도로 전환해서 부드럽게 바뀝니다.
+   ========================================================= */
+.hero-cta .cta-btn {
+    position: relative;
+    isolation: isolate;
+}
+.hero-cta .cta-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+}
+/* 상세보기: 켜진 상태 위에 어두운 막(= 소감 버튼의 꺼진 모습)을 덮어서 끔 */
+.hero-cta .cta-primary::before {
+    background: #171717;
+    box-shadow: inset 0 0 0 1px #262626;
+}
+/* 소감: 꺼진 상태 위에 그라데이션 막(= 상세보기의 켜진 모습)을 덮어서 켬 */
+.hero-cta .cta-secondary::before {
+    background: var(--accent-grad);
+}
+
+.hero-cta:has(.cta-secondary:hover) .cta-primary::before,
+.hero-cta:has(.cta-secondary:focus-visible) .cta-primary::before,
+.hero-cta:has(.cta-secondary:hover) .cta-secondary::before,
+.hero-cta:has(.cta-secondary:focus-visible) .cta-secondary::before {
+    opacity: 1;
+}
+
+/* 꺼지는 상세보기: 글자색/그림자도 소감 버튼의 꺼진 모습으로 */
+.hero-cta:has(.cta-secondary:hover) .cta-primary,
+.hero-cta:has(.cta-secondary:focus-visible) .cta-primary {
+    color: var(--accent-text) !important;
+    box-shadow: none !important;
+}
+
+/* 켜지는 소감: 테두리/글자색/그림자를 상세보기의 켜진 모습으로 */
+.hero-cta .cta-secondary:hover,
+.hero-cta .cta-secondary:focus-visible {
+    border-color: var(--accent-2) !important;
+    color: #ffffff !important;
+    box-shadow: 0 20px 25px -5px rgba(139, 116, 189, 0.28), 0 0 24px rgba(139, 91, 201, 0.5);
+}

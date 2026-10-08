@@ -17,7 +17,7 @@
     const TAU = Math.PI * 2;
     const MAX_DPR = 1.5;                 // 별은 작고 부드러워서 1.5배면 충분합니다 (2로 올리면 더 선명, 대신 무거움)
     const MOUSE_RADIUS = 300;
-    const MOUSE_ATTRACT_MS = 25;         // 별이 마우스로 모여드는 속도(ms). 작을수록 더 빠르게 달라붙음
+    const MOUSE_ATTRACT_MS = 30;         // 별이 마우스로 모여드는 속도(ms). 작을수록 더 빠르게 달라붙음
     const MOUSE_RELEASE_MS = 90;         // 마우스가 떠난 뒤 별이 제자리로 돌아가는 속도(ms)
     const MOUSE_PULL = true;             // false로 바꾸면 마우스에 별이 붙는 효과를 끕니다
 
