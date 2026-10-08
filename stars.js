@@ -4,6 +4,9 @@
 //      아래로 내려가면 별이 아래 → 위로, 위로 올라가면 위 → 아래로 일제히 흐르며 꼬리(워프 선)가 생깁니다.
 //      가까운(큰) 별일수록 더 빠르게 움직여 깊이감이 납니다.
 //  - 마우스 주변 150px 안의 별이 모여드는 기존 인터랙션은 그대로 유지합니다.
+//
+//  [성능] 별 점/후광/꼬리를 미리 그려 둔 스프라이트(작은 이미지)로 만들어 두고 drawImage로 찍습니다.
+//        매 프레임 색 문자열 생성·그라데이션 생성·path 그리기가 사라져 렉이 크게 줄어듭니다.
 (function () {
     const canvas = document.getElementById('stars');
     if (!canvas) return;
@@ -12,12 +15,12 @@
     if (!ctx) return;
 
     const TAU = Math.PI * 2;
-    const MAX_DPR = 2;
+    const MAX_DPR = 1.5;                 // 별은 작고 부드러워서 1.5배면 충분합니다 (2로 올리면 더 선명, 대신 무거움)
     const MOUSE_RADIUS = 150;
     const IDLE_INTERVAL = 1000 / 30;     // 정지 상태에서는 30fps로 부담을 줄이고, 워프 중에는 60fps
 
     // ── 조절용 값 ──────────────────────────────────────────────
-    const SPIN_PERIOD = 400000;          // 중심 회전 한 바퀴 시간(ms) = 300초 (더 천천히: 값↑)
+    const SPIN_PERIOD = 400000;          // 중심 회전 한 바퀴 시간(ms) = 400초 (더 천천히: 값↑)
     const WARP_GAIN = 1;               // 스크롤 속도 → 별 이동 속도 배율 (워프 강도)
     const WARP_MAX = 3;                  // 별 이동 속도 상한 (px/ms)
     const WARP_ATTACK = 90;              // 속도가 붙는 시간(ms)
@@ -52,10 +55,82 @@
     let warpV = 0;                       // 현재 별 이동 속도(px/ms, 화면 y 기준: 음수 = 위로)
     const mouse = { x: -9999, y: -9999, active: false };
 
+    // ===== 스프라이트 (미리 그려 두는 작은 이미지) =====
+    const dotCache = new Map();          // 색 × 반지름(0.2px 단위) → 별 점
+    const colorCache = new Map();        // 색 → 후광 / 꼬리(아래로, 위로)
+
+    function newCanvas(w, h) {
+        const c = document.createElement('canvas');
+        c.width = Math.max(1, Math.ceil(w));
+        c.height = Math.max(1, Math.ceil(h));
+        return c;
+    }
+
+    function dotSprite(color, r) {
+        const bucket = Math.max(2, Math.round(r * 5));
+        const key = color + '|' + bucket;
+        let spr = dotCache.get(key);
+        if (spr) return spr;
+
+        const rr = bucket / 5;
+        const cv = newCanvas((rr + 1) * 2 * dpr, (rr + 1) * 2 * dpr);
+        const css = cv.width / dpr;
+        const c = cv.getContext('2d');
+        c.scale(dpr, dpr);
+        c.fillStyle = `rgb(${color})`;
+        c.beginPath();
+        c.arc(css / 2, css / 2, rr, 0, TAU);
+        c.fill();
+
+        spr = { cv, size: css, half: css / 2 };
+        dotCache.set(key, spr);
+        return spr;
+    }
+
+    function colorSprites(color) {
+        let cs = colorCache.get(color);
+        if (cs) return cs;
+
+        // 큰 별의 후광 (반지름 18px 기준으로 만들고 별 크기에 맞게 축소해서 사용)
+        const HALO = 18;
+        const halo = newCanvas(HALO * 2 * dpr, HALO * 2 * dpr);
+        {
+            const c = halo.getContext('2d');
+            c.scale(dpr, dpr);
+            const g = c.createRadialGradient(HALO, HALO, 0, HALO, HALO, HALO);
+            g.addColorStop(0, `rgba(${color},1)`);
+            g.addColorStop(1, `rgba(${color},0)`);
+            c.fillStyle = g;
+            c.fillRect(0, 0, HALO * 2, HALO * 2);
+        }
+
+        // 워프 꼬리: 머리(별) 쪽이 진하고 끝으로 갈수록 사라지는 세로 그라데이션
+        const TAIL_H = 96;
+        function tail(headAtTop) {
+            const cv = newCanvas(2 * dpr, TAIL_H * dpr);
+            const c = cv.getContext('2d');
+            c.scale(dpr, dpr);
+            const g = headAtTop
+                ? c.createLinearGradient(0, 0, 0, TAIL_H)
+                : c.createLinearGradient(0, TAIL_H, 0, 0);
+            g.addColorStop(0, `rgba(${color},1)`);
+            g.addColorStop(0.35, `rgba(${color},0.45)`);
+            g.addColorStop(1, `rgba(${color},0)`);
+            c.fillStyle = g;
+            c.fillRect(0, 0, 2, TAIL_H);
+            return cv;
+        }
+
+        cs = { halo, tailDown: tail(true), tailUp: tail(false) };
+        colorCache.set(color, cs);
+        return cs;
+    }
+
     function makeStar(big) {
         const r = big
             ? 2 + Math.random() * 1.0
             : 0.4 + Math.random() * 1.4;
+        const c = pickColor();
         return {
             // 별밭 좌표 (화면 중심 기준). 회전하는 별밭 위에 놓이고, 사각 별밭 가장자리에서 반대편으로 이어집니다.
             fx: (Math.random() * 2 - 1) * R,
@@ -65,7 +140,9 @@
             a: big ? 0.8 + Math.random() * 0.2 : 0.3 + Math.random() * 0.55,
             phase: Math.random() * TAU,
             tw: 0.0006 + Math.random() * 0.0016,
-            c: pickColor(),
+            c,
+            dot: dotSprite(c, r),
+            cs: colorSprites(c),
             big,
             spark: big && Math.random() < 0.5,
             mx: 0, my: 0                 // 마우스에 끌려간 정도
@@ -93,6 +170,8 @@
         const count = Math.min(9000, Math.ceil(visible * (L * L) / (W * H)));
         const bigCount = Math.max(3, Math.round(count * 0.005));
 
+        dotCache.clear();
+        colorCache.clear();
         stars = Array.from({ length: count }, (_, i) => makeStar(i < bigCount));
 
         if (reducedMotion.matches) render(0, 0, 0, 0, false);
@@ -110,12 +189,15 @@
         const cosR = Math.cos(rot);
         const move = vel * Math.min(dt, 50);              // 이번 프레임 이동량(깊이 1 기준)
         const trail = Math.abs(vel) * STREAK_MS;          // 꼬리 길이(깊이 1 기준)
-        const trailDir = vel < 0 ? 1 : -1;                // 별이 위로 가면 꼬리는 아래쪽
+        const tailDown = vel < 0;                         // 별이 위로 가면 꼬리는 아래쪽
         const padX = 24;
         const padY = 24 + Math.min(trail * 2, STREAK_MAX);
         const r2 = MOUSE_RADIUS * MOUSE_RADIUS;
+        const useMouse = animate && mouse.active;
 
-        for (const s of stars) {
+        for (let i = 0; i < stars.length; i++) {
+            const s = stars[i];
+
             // 1) 워프 이동: 화면 기준 세로 이동을 별밭 좌표로 변환해 누적, 가장자리에서 반대편으로 순환
             if (move !== 0) {
                 const d = move * s.depth;
@@ -135,21 +217,27 @@
                 continue;
             }
 
-            // 3) 마우스 주변 별이 모여드는 효과 (원본과 동일한 반경/세기, 부드럽게 따라가고 놓으면 복귀)
-            let tmx = 0;
-            let tmy = 0;
-            if (animate && mouse.active) {
-                const dx = mouse.x - bx;
-                const dy = mouse.y - by;
-                const distSq = dx * dx + dy * dy;
-                if (distSq < r2) {
-                    const force = (1 - Math.sqrt(distSq) / MOUSE_RADIUS) * 0.95;
-                    tmx = dx * force;
-                    tmy = dy * force;
+            // 3) 마우스 주변 별이 모여드는 효과 (반경/세기 동일, 부드럽게 따라가고 놓으면 복귀)
+            if (useMouse || s.mx !== 0 || s.my !== 0) {
+                let tmx = 0;
+                let tmy = 0;
+                if (useMouse) {
+                    const dx = mouse.x - bx;
+                    const dy = mouse.y - by;
+                    const distSq = dx * dx + dy * dy;
+                    if (distSq < r2) {
+                        const force = (1 - Math.sqrt(distSq) / MOUSE_RADIUS) * 0.95;
+                        tmx = dx * force;
+                        tmy = dy * force;
+                    }
+                }
+                s.mx += (tmx - s.mx) * 0.09;
+                s.my += (tmy - s.my) * 0.09;
+                if (!useMouse && Math.abs(s.mx) < 0.01 && Math.abs(s.my) < 0.01) {
+                    s.mx = 0;
+                    s.my = 0;
                 }
             }
-            s.mx += (tmx - s.mx) * 0.09;
-            s.my += (tmy - s.my) * 0.09;
 
             const x = bx + s.mx;
             const y = by + s.my;
@@ -158,17 +246,15 @@
                 : s.a;
 
             if (s.big) {
+                // 후광
                 const halo = s.r * 6;
-                const g = ctx.createRadialGradient(x, y, 0, x, y, halo);
-                g.addColorStop(0, `rgba(${s.c},${pulse * 0.5})`);
-                g.addColorStop(1, `rgba(${s.c},0)`);
-                ctx.fillStyle = g;
-                ctx.beginPath();
-                ctx.arc(x, y, halo, 0, TAU);
-                ctx.fill();
+                ctx.globalAlpha = pulse * 0.5;
+                ctx.drawImage(s.cs.halo, x - halo, y - halo, halo * 2, halo * 2);
 
+                // 십자 반짝임 (큰 별 일부만이라 그대로 선으로 그림)
                 if (s.spark) {
                     const len = s.r * 7 * (animate ? 0.8 + 0.2 * Math.sin(ts * s.tw * 0.7 + s.phase) : 1);
+                    ctx.globalAlpha = 1;
                     ctx.strokeStyle = `rgba(${s.c},${pulse * 0.55})`;
                     ctx.lineWidth = 0.8;
                     ctx.beginPath();
@@ -181,29 +267,20 @@
             }
 
             // 4) 워프 꼬리 (빠를수록, 가까운 별일수록 길게)
-            const len = Math.min(trail * s.depth, STREAK_MAX);
-            if (len > 1.5) {
+            const tl = Math.min(trail * s.depth, STREAK_MAX);
+            if (tl > 1.5) {
                 const w = Math.max(0.7, s.r * 1.2);
-                const ty = y + trailDir * len;
-                ctx.lineCap = 'round';
-                ctx.lineWidth = w;
-                ctx.strokeStyle = `rgba(${s.c},${pulse * 0.28})`;
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-                ctx.lineTo(x, ty);
-                ctx.stroke();
-                ctx.strokeStyle = `rgba(${s.c},${pulse * 0.55})`;
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-                ctx.lineTo(x, y + trailDir * len * 0.5);
-                ctx.stroke();
+                ctx.globalAlpha = pulse * 0.7;
+                if (tailDown) ctx.drawImage(s.cs.tailDown, x - w / 2, y, w, tl);
+                else ctx.drawImage(s.cs.tailUp, x - w / 2, y - tl, w, tl);
             }
 
-            ctx.beginPath();
-            ctx.arc(x, y, s.r, 0, TAU);
-            ctx.fillStyle = `rgba(${s.c},${pulse})`;
-            ctx.fill();
+            // 5) 별 본체
+            ctx.globalAlpha = pulse;
+            ctx.drawImage(s.dot.cv, x - s.dot.half, y - s.dot.half, s.dot.size, s.dot.size);
         }
+
+        ctx.globalAlpha = 1;
     }
 
     function frame(ts) {
@@ -225,7 +302,8 @@
         lastScrollTs = ts;
 
         const warping = warpV !== 0;
-        if (!warping && ts - lastTs < IDLE_INTERVAL) return;
+        // 프레임 간격이 살짝 흔들려도 30fps가 20fps로 떨어지지 않도록 여유(-2ms)를 둡니다.
+        if (!warping && ts - lastTs < IDLE_INTERVAL - 2) return;
 
         const dt = ts - lastTs;
         lastTs = ts;
