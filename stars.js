@@ -17,7 +17,8 @@
     const TAU = Math.PI * 2;
     const MAX_DPR = 1.5;                 // 별은 작고 부드러워서 1.5배면 충분합니다 (2로 올리면 더 선명, 대신 무거움)
     const MOUSE_RADIUS = 150;
-    const IDLE_INTERVAL = 1000 / 30;     // 정지 상태에서는 30fps로 부담을 줄이고, 워프 중에는 60fps
+    const MOUSE_EASE_MS = 70;            // 마우스에 별이 붙고 떨어지는 속도(ms). 작을수록 빠르게 반응, 크면 느긋하게
+    const MOUSE_PULL = true;             // false로 바꾸면 마우스에 별이 붙는 효과를 끕니다
 
     // ── 조절용 값 ──────────────────────────────────────────────
     const SPIN_PERIOD = 400000;          // 중심 회전 한 바퀴 시간(ms) = 400초 (더 천천히: 값↑)
@@ -28,6 +29,7 @@
     const STREAK_MS = 55;                // 꼬리 길이: 이 시간 동안 이동할 거리만큼
     const STREAK_MAX = 260;              // 꼬리 최대 길이(px)
     const WARP_EPS = 0.015;              // 이보다 느리면 정지 상태로 간주
+    const RAW_SMOOTH_MS = 45;            // 프레임마다 들쭉날쭉한 스크롤량을 평균내는 시간(ms) — 워프 떨림 방지
     // ──────────────────────────────────────────────────────────
 
     const SPIN_SPEED = TAU / SPIN_PERIOD; // rad/ms
@@ -53,6 +55,7 @@
     let lastScrollTs = lastTs;
     let lastScrollY = window.scrollY || 0;
     let warpV = 0;                       // 현재 별 이동 속도(px/ms, 화면 y 기준: 음수 = 위로)
+    let rawV = 0;                        // 스크롤에서 측정한 속도(평균 낸 값)
     const mouse = { x: -9999, y: -9999, active: false };
 
     // ===== 스프라이트 (미리 그려 두는 작은 이미지) =====
@@ -190,10 +193,15 @@
         const move = vel * Math.min(dt, 50);              // 이번 프레임 이동량(깊이 1 기준)
         const trail = Math.abs(vel) * STREAK_MS;          // 꼬리 길이(깊이 1 기준)
         const tailDown = vel < 0;                         // 별이 위로 가면 꼬리는 아래쪽
+        // 화면 밖이라도 꼬리가 화면 안으로 뻗는 쪽만 그리고, 반대쪽은 바로 생략
         const padX = 24;
-        const padY = 24 + Math.min(trail * 2, STREAK_MAX);
+        const tailPad = Math.min(trail * 2, STREAK_MAX);
+        const padTop = tailDown ? 24 + tailPad : 24;
+        const padBottom = tailDown ? 24 : 24 + tailPad;
         const r2 = MOUSE_RADIUS * MOUSE_RADIUS;
-        const useMouse = animate && mouse.active;
+        const useMouse = MOUSE_PULL && animate && mouse.active;
+        // 프레임 속도와 상관없이 같은 속도로 따라붙도록 시간 기준으로 계산
+        const ease = 1 - Math.exp(-Math.min(dt, 50) / MOUSE_EASE_MS);
 
         for (let i = 0; i < stars.length; i++) {
             const s = stars[i];
@@ -211,7 +219,7 @@
             const bx = cx + s.fx * cosR - s.fy * sinR;
             const by = cy + s.fx * sinR + s.fy * cosR;
 
-            if (bx < -padX || bx > W + padX || by < -padY || by > H + padY) {
+            if (bx < -padX || bx > W + padX || by < -padTop || by > H + padBottom) {
                 s.mx = 0;
                 s.my = 0;
                 continue;
@@ -231,8 +239,8 @@
                         tmy = dy * force;
                     }
                 }
-                s.mx += (tmx - s.mx) * 0.09;
-                s.my += (tmy - s.my) * 0.09;
+                s.mx += (tmx - s.mx) * ease;
+                s.my += (tmy - s.my) * ease;
                 if (!useMouse && Math.abs(s.mx) < 0.01 && Math.abs(s.my) < 0.01) {
                     s.mx = 0;
                     s.my = 0;
@@ -268,16 +276,22 @@
 
             // 4) 워프 꼬리 (빠를수록, 가까운 별일수록 길게)
             const tl = Math.min(trail * s.depth, STREAK_MAX);
-            if (tl > 1.5) {
+            let drawDot = true;
+            if (tl > 3) {
+                const small = s.r < 1.0;
                 const w = Math.max(0.7, s.r * 1.2);
-                ctx.globalAlpha = pulse * 0.7;
+                ctx.globalAlpha = pulse * (small ? 0.9 : 0.7);
                 if (tailDown) ctx.drawImage(s.cs.tailDown, x - w / 2, y, w, tl);
                 else ctx.drawImage(s.cs.tailUp, x - w / 2, y - tl, w, tl);
+                // 작은 별은 꼬리 머리만으로 충분해서 본체 그리기를 생략 (그리기 횟수 절감)
+                if (small && tl > 6) drawDot = false;
             }
 
             // 5) 별 본체
-            ctx.globalAlpha = pulse;
-            ctx.drawImage(s.dot.cv, x - s.dot.half, y - s.dot.half, s.dot.size, s.dot.size);
+            if (drawDot) {
+                ctx.globalAlpha = pulse;
+                ctx.drawImage(s.dot.cv, x - s.dot.half, y - s.dot.half, s.dot.size, s.dot.size);
+            }
         }
 
         ctx.globalAlpha = 1;
@@ -292,19 +306,20 @@
         // 스크롤 속도 → 워프 속도 (아래로 스크롤 = 별은 위로)
         const sy = window.scrollY || 0;
         const sdt = Math.max(ts - lastScrollTs, 1);
-        let target = -((sy - lastScrollY) / Math.max(sdt, 8)) * WARP_GAIN;
-        target = Math.max(-WARP_MAX, Math.min(WARP_MAX, target));
+        let raw = -((sy - lastScrollY) / Math.max(sdt, 8)) * WARP_GAIN;
+        raw = Math.max(-WARP_MAX, Math.min(WARP_MAX, raw));
+        // 1단계: 프레임마다 0, 2배처럼 튀는 스크롤량을 짧게 평균내서 속도를 안정화
+        rawV += (raw - rawV) * (1 - Math.exp(-Math.min(sdt, 100) / RAW_SMOOTH_MS));
+        // 2단계: 빨라질 땐 빠르게, 멈출 땐 서서히 잦아들게
+        const target = rawV;
         const speedingUp = Math.abs(target) > Math.abs(warpV) || target * warpV < 0;
         const tau = speedingUp ? WARP_ATTACK : WARP_RELEASE;
         warpV += (target - warpV) * (1 - Math.exp(-Math.min(sdt, 100) / tau));
-        if (Math.abs(warpV) < WARP_EPS && target === 0) warpV = 0;
+        if (Math.abs(warpV) < WARP_EPS && Math.abs(rawV) < WARP_EPS) { warpV = 0; rawV = 0; }
         lastScrollY = sy;
         lastScrollTs = ts;
 
-        const warping = warpV !== 0;
-        // 프레임 간격이 살짝 흔들려도 30fps가 20fps로 떨어지지 않도록 여유(-2ms)를 둡니다.
-        if (!warping && ts - lastTs < IDLE_INTERVAL - 2) return;
-
+        // 정지 상태에서도 매 프레임(최대 60fps) 그려 회전과 마우스 효과가 끊기지 않게 합니다.
         const dt = ts - lastTs;
         lastTs = ts;
         render(ts, dt, SPIN_SPEED * ts, warpV, true);
@@ -314,7 +329,7 @@
         if (reducedMotion.matches || raf) return;
         lastTs = lastScrollTs = performance.now();
         lastScrollY = window.scrollY || 0;
-        warpV = 0;
+        warpV = rawV = 0;
         raf = requestAnimationFrame(frame);
     }
 
@@ -340,7 +355,7 @@
         if (!document.hidden) {
             lastTs = lastScrollTs = performance.now();
             lastScrollY = window.scrollY || 0;
-            warpV = 0;
+            warpV = rawV = 0;
         }
     });
 
