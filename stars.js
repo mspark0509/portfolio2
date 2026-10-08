@@ -16,12 +16,13 @@
 
     const TAU = Math.PI * 2;
     const MAX_DPR = 1.5;                 // 별은 작고 부드러워서 1.5배면 충분합니다 (2로 올리면 더 선명, 대신 무거움)
-    const MOUSE_RADIUS = 150;
-    const MOUSE_EASE_MS = 70;            // 마우스에 별이 붙고 떨어지는 속도(ms). 작을수록 빠르게 반응, 크면 느긋하게
+    const MOUSE_RADIUS = 300;
+    const MOUSE_ATTRACT_MS = 25;         // 별이 마우스로 모여드는 속도(ms). 작을수록 더 빠르게 달라붙음
+    const MOUSE_RELEASE_MS = 90;         // 마우스가 떠난 뒤 별이 제자리로 돌아가는 속도(ms)
     const MOUSE_PULL = true;             // false로 바꾸면 마우스에 별이 붙는 효과를 끕니다
 
     // ── 조절용 값 ──────────────────────────────────────────────
-    const SPIN_PERIOD = 400000;          // 중심 회전 한 바퀴 시간(ms) = 400초 (더 천천히: 값↑)
+    const SPIN_PERIOD = 300000;          // 중심 회전 한 바퀴 시간(ms) = 400초 (더 천천히: 값↑)
     const WARP_GAIN = 1;               // 스크롤 속도 → 별 이동 속도 배율 (워프 강도)
     const WARP_MAX = 3;                  // 별 이동 속도 상한 (px/ms)
     const WARP_ATTACK = 90;              // 속도가 붙는 시간(ms)
@@ -168,8 +169,8 @@
         R = Math.hypot(W, H) / 2 + 40;
         L = R * 2;
 
-        // 화면에 보이는 별 밀도는 기존(약 1000개 상한)과 같게 유지
-        const visible = Math.min(1000, Math.floor(W * H / 720));
+        // 화면에 보이는 별 밀도는 기존(약 1500개 상한)과 같게 유지
+        const visible = Math.min(1500, Math.floor(W * H / 720));
         const count = Math.min(9000, Math.ceil(visible * (L * L) / (W * H)));
         const bigCount = Math.max(3, Math.round(count * 0.005));
 
@@ -201,7 +202,8 @@
         const r2 = MOUSE_RADIUS * MOUSE_RADIUS;
         const useMouse = MOUSE_PULL && animate && mouse.active;
         // 프레임 속도와 상관없이 같은 속도로 따라붙도록 시간 기준으로 계산
-        const ease = 1 - Math.exp(-Math.min(dt, 50) / MOUSE_EASE_MS);
+        const easeIn = 1 - Math.exp(-Math.min(dt, 50) / MOUSE_ATTRACT_MS);
+        const easeOut = 1 - Math.exp(-Math.min(dt, 50) / MOUSE_RELEASE_MS);
 
         for (let i = 0; i < stars.length; i++) {
             const s = stars[i];
@@ -239,6 +241,7 @@
                         tmy = dy * force;
                     }
                 }
+                const ease = (tmx !== 0 || tmy !== 0) ? easeIn : easeOut;
                 s.mx += (tmx - s.mx) * ease;
                 s.my += (tmy - s.my) * ease;
                 if (!useMouse && Math.abs(s.mx) < 0.01 && Math.abs(s.my) < 0.01) {
