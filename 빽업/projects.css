@@ -134,7 +134,11 @@ body {
         font-size: clamp(11px, calc(100vh * 16 / var(--fit-ref)), 16px);
         scroll-snap-type: y mandatory;
     }
-    .page-section {
+    /* .project-detail-spacer(프로젝트 상세의 주요기능·이슈 블록)도 정지 지점으로 등록해
+       두번째 섹션(개요)에서 스크롤을 이어갈 때 중간 단계 없이 푸터로 바로 건너뛰며
+       내용과 겹쳐 보이던 현상을 방지 */
+    .page-section,
+    .project-detail-spacer {
         scroll-snap-align: start;
         scroll-snap-stop: always;
     }
@@ -326,4 +330,122 @@ button {
 .btn-glow-sm:hover {
     transform: scale(1.05) !important;
     box-shadow: 0 0 16px rgba(255, 255, 255, 0.45) !important;
+}
+
+
+/* =========================================================
+   Portfolio spacing / sizing refinements
+   ========================================================= */
+
+/* 프로젝트 소개와 자기소개 메인 타이틀 크기 통일 */
+#heading-2,
+#heading-3 {
+    font-size: clamp(1.5rem, 2.4vw, 1.875rem);
+    line-height: 1.25;
+}
+
+/* 프로젝트 소개 첫 섹션: 타이틀과 미리보기 사이 여유 */
+#section-preview {
+    padding-top: 7rem;
+}
+
+#section-preview > .flex:first-child {
+    margin-bottom: 2.5rem;
+}
+
+/* 실시간 미리보기 화면을 화면 안에서 더 크게 */
+#section-preview .mockup-viewport {
+    min-height: 0;
+}
+
+#section-preview .mockup-viewport > div {
+    min-height: 0;
+}
+
+/* 프로젝트 상세: 개요 + 기능을 하나의 섹션 흐름으로 연결 */
+#detail-haevichi .page-section,
+#detail-byheydey .page-section {
+    min-height: auto;
+    padding-bottom: 2rem;
+}
+
+.project-detail-spacer {
+    box-sizing: border-box;
+    padding: 3.5rem 0 4rem;
+}
+
+.project-detail-spacer .grid {
+    gap: 2rem;
+}
+
+/* 프로젝트 상세 카드 사이가 답답하지 않도록 */
+#detail-haevichi,
+#detail-byheydey {
+    padding-bottom: 2rem;
+}
+
+/* 모바일에서도 제목/미리보기 간격을 유지하되 과도하게 커지지 않게 */
+@media (max-width: 767px) {
+    #section-preview {
+        padding-top: 6rem;
+    }
+
+    #section-preview > .flex:first-child {
+        margin-bottom: 2rem;
+    }
+
+    .project-detail-spacer {
+        padding: 2.5rem 0 3rem;
+    }
+}
+
+/* 데스크톱 스크롤 스냅에서는 개요 / 주요기능·이슈 섹션도 1페이지·3페이지의 다른 섹션들처럼
+   한 화면(100vh)을 가득 채워야, 마지막 스크롤에서 푸터가 미리 비쳐 보이지 않고
+   스냅 전환도 매끄럽게 이어집니다. */
+@media (min-width: 1024px) and (min-height: 560px) {
+    #detail-haevichi .page-section,
+    #detail-byheydey .page-section {
+        min-height: calc(100vh + 6rem);
+        min-height: calc(100dvh + 6rem);
+        padding-bottom: 2.5rem;
+    }
+
+    .project-detail-spacer {
+        min-height: 100vh;
+        min-height: 100dvh;
+        padding: 6rem 0 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+}
+
+
+/* =========================================================
+   성능 개선: 항상 돌아가는 블러/백드롭 필터 제거
+   - 별 캔버스가 매 프레임 바뀌므로, 그 위의 블러 효과는 매번 다시 계산되어 렉의 원인이 됩니다.
+   - 아래 효과들은 배경이 매우 어둡고 불투명도가 높아 화면 차이가 거의 없습니다.
+   ========================================================= */
+
+/* 600px 큰 글로우: 64px 블러 + 무한 애니메이션 (실제로는 투명도 3%라 거의 보이지 않음) */
+.animate-pulse-glow {
+    animation: none !important;
+    filter: none !important;
+}
+
+/* 은하수 띠: 이미 부드러운 그라데이션이라 움직이는 블러 없이도 거의 동일 */
+.galaxy-bg::before {
+    filter: none;
+}
+
+/* 유리 패널: 뒤 별을 흐리게 하던 backdrop-filter 제거 (배경 70% 불투명 유지) */
+.glass-panel {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+/* 닫혀 있는 문의 모달에는 전체 화면 블러가 걸리지 않도록 */
+#contactModal.opacity-0 {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }

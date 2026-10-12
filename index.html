@@ -52,7 +52,29 @@
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&amp;family=Inter:wght@300;400;500;600;700;800;900&amp;family=Noto+Sans+KR:wght@300;400;500;700;900&amp;display=swap" rel="stylesheet"/>
 <!-- FontAwesome Icons -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<link href="./index.css" rel="stylesheet"/>
+<link href="./index.css?v=20261012" rel="stylesheet"/>
+<style id="cta-arrow-style">
+/* 메인 버튼 화살표: 평소 숨김, 호버/포커스 시 나타남 (index.css 캐시와 무관하게 적용) */
+.hero-cta .cta-btn > :not(.cta-arrow) {
+    --cta-shift: 0.58rem;   /* 화살표(+간격) 폭의 절반 */
+    transform: translateX(var(--cta-shift));
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-cta .cta-arrow {
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-cta .cta-btn:hover > :not(.cta-arrow),
+.hero-cta .cta-btn:focus-visible > :not(.cta-arrow) {
+    transform: none;
+}
+.hero-cta .cta-btn:hover .cta-arrow,
+.hero-cta .cta-btn:focus-visible .cta-arrow {
+    opacity: 1;
+    transform: none;
+}
+</style>
 </head>
 <body class="relative min-h-screen selection:bg-white selection:text-black">
 <div aria-hidden="true" class="galaxy-bg"></div><canvas aria-hidden="true" class="fixed inset-0 z-0 pointer-events-none" id="stars"></canvas><a class="skip-link" href="#main">본문
@@ -136,7 +158,7 @@
 <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight max-w-5xl text-gradient leading-[1.15] mb-6" id="heading-1">
                     CRAFTING MINIMALIST &amp; INTERACTIVE WEB EXPERIENCES
                 </h1>
-<p class="text-base sm:text-lg text-neutral-400 max-w-2xl font-light leading-relaxed mb-10">
+<p class="text-base sm:text-lg text-neutral-400 max-w-3xl font-light leading-relaxed mb-10" style="word-break: keep-all;">
                     웹의 디테일을 살리는 프론트엔드 개발자입니다. 리조트 브랜드 <span class="text-white font-medium underline underline-offset-4 decoration-neutral-600">해비치(Haevichi)</span>와
                     디자인 가구 브랜드 <span class="text-white font-medium underline underline-offset-4 decoration-neutral-600">바이헤이데이(ByHeyDey)</span>의
                     인터랙티브 웹사이트 프로젝트를 확인해보세요.
@@ -145,11 +167,12 @@
 <a class="cta-btn cta-primary btn-glow px-7 py-3.5 rounded-xl bg-white text-black font-semibold text-sm hover:bg-neutral-200 transition-all flex items-center gap-2 shadow-xl shadow-white/10 group" href="projects.html">
 <i class="fa-solid fa-magnifying-glass text-xs"></i>
 <span>프로젝트 상세보기</span>
-<i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+<i class="fa-solid fa-arrow-right text-xs cta-arrow"></i>
 </a>
 <a class="cta-btn cta-secondary btn-glow px-7 py-3.5 rounded-xl bg-neutral-900 border border-neutral-800 text-white hover:border-neutral-600 text-sm font-medium transition-all flex items-center gap-2" href="resume.html">
 <i class="fa-regular fa-file-lines text-xs"></i>
 <span>소감 및 자소서 읽기</span>
+<i class="fa-solid fa-arrow-right text-xs cta-arrow"></i>
 </a>
 </div>
 <!-- Live Metrics Bar -->
