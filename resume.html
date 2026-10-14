@@ -4,6 +4,8 @@
 
 <head>
     <meta charset="utf-8" />
+<script>try{if(sessionStorage.getItem("planetArrive")){document.documentElement.classList.add("planet-arriving");setTimeout(function(){document.documentElement.classList.remove("planet-arriving")},4000)}}catch(e){}</script>
+
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>PORTFOLIO.DEV | 소감 & 자기소개서</title>
     <!-- Tailwind CSS -->
@@ -57,6 +59,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
     <link href="./resume.css" rel="stylesheet" />
+<link href="./planets.css?v=20261026" rel="stylesheet"/>
 </head>
 
 <body class="relative min-h-screen selection:bg-white selection:text-black">
@@ -70,87 +73,6 @@
     <!-- Scroll Progress Bar -->
     <div aria-hidden="true" class="fixed top-0 left-0 h-[3px] bg-white z-50 transition-all duration-150"
         id="scrollProgress" style="width: 0%;"></div>
-    <header class="fixed top-0 left-0 w-full z-40 glass-nav transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <!-- Brand Logo -->
-            <a class="flex items-center gap-3 group" href="index.html">
-                <div
-                    class="w-10 h-10 bg-white text-black font-black flex items-center justify-center text-xl rounded-lg group-hover:rotate-6 transition-transform duration-300">
-                    P
-                </div>
-                <div>
-                    <span
-                        class="font-mono text-sm tracking-wider font-bold block text-white group-hover:text-neutral-300 transition-colors">PORTFOLIO.DEV</span>
-                    <span class="text-[10px] text-neutral-400 block tracking-widest uppercase">Haevichi &amp;
-                        ByHeyDey</span>
-                </div>
-            </a>
-            <!-- Desktop Menu Navigation -->
-            <nav aria-label="주 메뉴" class="hidden md:flex items-center gap-8">
-                <button
-                    class="nav-link text-sm font-medium text-neutral-300 hover:text-white transition-colors py-1 flex items-center gap-2"
-                    id="nav-main" onclick="window.location.href='index.html'" type="button">
-                    <i class="fa-solid fa-house text-xs"></i> 메인 페이지
-                </button>
-                <button
-                    class="nav-link text-sm font-medium text-neutral-300 hover:text-white transition-colors py-1 flex items-center gap-2"
-                    id="nav-projects" onclick="window.location.href='projects.html'" type="button">
-                    <i class="fa-solid fa-laptop-code text-xs"></i> 프로젝트 소개
-                </button>
-                <button
-                    class="nav-link active text-sm font-medium text-neutral-300 hover:text-white transition-colors py-1 flex items-center gap-2"
-                    id="nav-resume" onclick="window.location.href='resume.html'" type="button">
-                    <i class="fa-solid fa-user-pen text-xs"></i> 소감 &amp; 자소서
-                </button>
-            </nav>
-            <!-- Quick Action Button -->
-            <div class="hidden sm:flex items-center gap-3">
-                <a class="px-4 py-2 text-xs font-mono border border-neutral-700 hover:border-white rounded-lg text-neutral-300 hover:text-white transition-all flex items-center gap-2"
-                    href="https://github.com/mspark0509" rel="noopener noreferrer" target="_blank">
-                    <i class="fa-brands fa-github"></i> GitHub
-                </a>
-                <button
-                    class="px-4 py-2 text-xs font-medium bg-white text-black hover:bg-neutral-200 rounded-lg transition-all font-semibold shadow-lg shadow-white/5"
-                    onclick="openContactModal()" type="button">
-                    문의하기
-                </button>
-            </div>
-            <!-- Mobile Hamburger Button -->
-            <button aria-controls="mobileMenu" aria-expanded="false" aria-label="모바일 메뉴 열기"
-                class="md:hidden p-2 text-neutral-300 hover:text-white focus:outline-none" id="mobileMenuBtn"
-                onclick="toggleMobileMenu()" type="button">
-                <i class="fa-solid fa-bars text-xl" id="menuIcon"></i>
-            </button>
-        </div>
-        <!-- Mobile Menu Dropdown -->
-        <div class="hidden md:hidden border-b border-neutral-800 bg-black/95 px-6 py-6 space-y-4" id="mobileMenu">
-            <button
-                class="block w-full text-left py-2 text-base font-medium text-neutral-200 hover:text-white border-b border-neutral-800/50"
-                onclick="window.location.href='index.html'" type="button">
-                <i class="fa-solid fa-house mr-3 text-xs text-neutral-400"></i> 메인 페이지
-            </button>
-            <button
-                class="block w-full text-left py-2 text-base font-medium text-neutral-200 hover:text-white border-b border-neutral-800/50"
-                onclick="window.location.href='projects.html'" type="button">
-                <i class="fa-solid fa-laptop-code mr-3 text-xs text-neutral-400"></i> 프로젝트 소개
-            </button>
-            <button
-                class="block w-full text-left py-2 text-base font-medium text-neutral-200 hover:text-white border-b border-neutral-800/50"
-                onclick="window.location.href='resume.html'" type="button">
-                <i class="fa-solid fa-user-pen mr-3 text-xs text-neutral-400"></i> 소감 &amp; 자소서
-            </button>
-            <div class="pt-2 flex gap-3">
-                <a class="flex-1 text-center py-2 text-xs font-mono border border-neutral-700 rounded-lg text-neutral-300"
-                    href="https://github.com/mspark0509" rel="noopener noreferrer" target="_blank">
-                    <i class="fa-brands fa-github mr-1"></i> GitHub
-                </a>
-                <button class="flex-1 text-center py-2 text-xs font-semibold bg-white text-black rounded-lg"
-                    onclick="openContactModal(); toggleMobileMenu()" type="button">
-                    문의하기
-                </button>
-            </div>
-        </div>
-    </header>
     <!-- Main Dynamic Content Wrapper -->
     <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" id="main">
 <section aria-labelledby="heading-3" class="tab-content "
@@ -333,99 +255,8 @@
                     </div>
                 </div>
             </div>
-            <!-- Section 3: 문의 -->
-            <div class="page-section" id="section-contact">
-                <div
-                    class="glass-panel p-10 md:py-24 rounded-2xl border border-neutral-800 bg-gradient-to-r from-neutral-900 via-neutral-950 to-neutral-900 text-center flex flex-col items-center justify-center">
-                    <span class="text-xs font-mono text-neutral-500 mb-2">// LET'S WORK TOGETHER</span>
-                    <h3 class="text-2xl sm:text-3xl font-extrabold text-white mb-4">함께 멋진 프로젝트를 만들어갈 준비가 되셨나요?</h3>
-                    <p class="text-neutral-400 text-sm max-w-xl mb-8">
-                        프로젝트 문의, 채용 관련 논의, 혹은 기술 스터디 관련 언제든 편하게 연락 주시기 바랍니다.
-                    </p>
-                    <button
-                        class="px-8 py-4 rounded-xl bg-white text-black font-bold text-sm hover:bg-neutral-200 transition-all flex items-center gap-3 shadow-xl shadow-white/10"
-                        onclick="openContactModal()" type="button">
-                        <i class="fa-solid fa-paper-plane text-xs"></i>
-                        <span>메시지 보내기</span>
-                    </button>
-                </div>
-            </div>
         </section>
     </main>
-    <footer class="site-footer relative z-10 border-t text-neutral-400 py-12">
-        <div
-            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-white text-black font-bold flex items-center justify-center text-base rounded">
-                    P
-                </div>
-                <div>
-                    <span class="font-mono text-xs text-white block">PORTFOLIO // HAEVICHI &amp; BYHEYDEY</span>
-                    <span class="text-[11px] text-neutral-500">Designed with Modern Black &amp; White Aesthetics</span>
-                </div>
-            </div>
-            <!-- Quick Footer Navigation -->
-            <div class="flex items-center gap-6 text-xs font-mono text-neutral-400">
-                <button class="hover:text-white transition-colors" onclick="window.location.href='index.html'" type="button">메인</button>
-                <button class="hover:text-white transition-colors" onclick="window.location.href='projects.html'"
-                    type="button">프로젝트</button>
-                <button class="hover:text-white transition-colors" onclick="window.location.href='resume.html'"
-                    type="button">소감&amp;자소서</button>
-                <a class="hover:text-white transition-colors" href="https://github.com/mspark0509"
-                    rel="noopener noreferrer" target="_blank">GitHub</a>
-            </div>
-            <!-- Back to top button -->
-            <button aria-label="맨 위로 이동"
-                class="w-10 h-10 rounded-lg border border-neutral-800 bg-neutral-900 hover:border-neutral-600 text-neutral-300 hover:text-white flex items-center justify-center transition-all"
-                onclick="scrollToTop()" title="맨 위로 가기" type="button">
-                <i class="fa-solid fa-arrow-up text-xs"></i>
-            </button>
-        </div>
-        <div
-            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-neutral-900 text-center md:text-left text-[11px] text-neutral-600">
-            © 2026 Creative Portfolio. All Rights Reserved. Built with HTML5, CSS3, Tailwind CSS &amp; Vanilla JS.
-        </div>
-    </footer>
-    <div aria-hidden="true" aria-labelledby="contact-title" aria-modal="true"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"
-        id="contactModal" role="dialog">
-        <div
-            class="glass-panel w-full max-w-lg rounded-2xl border border-neutral-700 p-8 relative shadow-2xl bg-neutral-950">
-            <button aria-label="문의 창 닫기" class="absolute top-6 right-6 text-neutral-400 hover:text-white text-lg"
-                onclick="closeContactModal()" type="button">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <span class="text-xs font-mono text-neutral-500 block mb-1">// GET IN TOUCH</span>
-            <h3 class="text-2xl font-bold text-white mb-2" id="contact-title">문의 및 메시지 전송</h3>
-            <p class="text-xs text-neutral-400 mb-6">아래 양식을 입력해 주시면 확인 후 신속하게 답변드리겠습니다.</p>
-            <form class="space-y-4" onsubmit="handleContactSubmit(event)">
-                <div>
-                    <label class="block text-xs font-mono text-neutral-300 mb-1" for="contact-name">성함 / 기업명</label>
-                    <input autocomplete="name"
-                        class="w-full px-4 py-2.5 rounded-lg bg-neutral-900 border border-neutral-800 text-white text-sm focus:outline-none focus:border-white transition-colors"
-                        id="contact-name" name="name" placeholder="홍길동" required="" type="text" />
-                </div>
-                <div>
-                    <label class="block text-xs font-mono text-neutral-300 mb-1" for="contact-email">이메일 주소</label>
-                    <input autocomplete="email"
-                        class="w-full px-4 py-2.5 rounded-lg bg-neutral-900 border border-neutral-800 text-white text-sm focus:outline-none focus:border-white transition-colors"
-                        id="contact-email" name="email" placeholder="example@email.com" required="" type="email" />
-                </div>
-                <div>
-                    <label class="block text-xs font-mono text-neutral-300 mb-1" for="contact-message">메시지 내용</label>
-                    <textarea
-                        class="w-full px-4 py-2.5 rounded-lg bg-neutral-900 border border-neutral-800 text-white text-sm focus:outline-none focus:border-white transition-colors resize-none"
-                        id="contact-message" name="message" placeholder="문의하실 내용을 자유롭게 작성해주세요..." required=""
-                        rows="4"></textarea>
-                </div>
-                <button
-                    class="w-full py-3.5 bg-white text-black font-bold text-xs rounded-lg hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2"
-                    type="submit">
-                    <i class="fa-solid fa-paper-plane text-xs"></i> 메시지 발송하기
-                </button>
-            </form>
-        </div>
-    </div>
     <!-- Toast Notification Widget -->
     <div class="fixed bottom-6 right-6 z-50 glass-panel px-5 py-3 rounded-xl border border-neutral-700 text-xs text-white flex items-center gap-3 opacity-0 translate-y-4 pointer-events-none shadow-xl"
         id="toast">
@@ -434,6 +265,7 @@
     </div>
 
     <script defer src="./stars.js"></script>
+<script defer src="./planets.js?v=20261026"></script>
 <script defer src="./resume.js"></script>
 </body>
 </html>

@@ -530,3 +530,131 @@ button {
     opacity: 1;
     transform: none;
 }
+
+
+/* =========================================================
+   메인 첫 화면: 이름 중심 소개 (MINSU PARK + 코드 카드)
+   ========================================================= */
+.intro-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 3.5rem;
+    width: 100%;
+}
+.intro-kicker {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    color: #5eead4;
+    margin-bottom: 1.75rem;
+}
+.intro-name {
+    font-size: clamp(3.5rem, 9.5vw, 8rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    color: #eef0f8;
+    margin-bottom: 2rem;
+}
+.intro-name-dim {
+    color: #5b6475;
+}
+.intro-desc {
+    max-width: 38rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #8b93a5;
+    word-break: keep-all;
+    margin-bottom: 2.25rem;
+}
+.intro-desc strong {
+    color: #ffffff;
+    font-weight: 700;
+}
+.intro-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+}
+.intro-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.4rem;
+    border-radius: 0.8rem;
+    border: 1px solid #1f2230;
+    background: #0b0d16;
+    color: #e7e5ee;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: transform .3s cubic-bezier(.16, 1, .3, 1), box-shadow .3s ease, border-color .3s ease;
+}
+.intro-btn:hover,
+.intro-btn:focus-visible {
+    transform: translateY(-2px);
+    border-color: #4a4468;
+    box-shadow: 0 0 22px rgba(139, 91, 201, .35);
+}
+.intro-btn--primary {
+    background: #eef0f8;
+    border-color: #eef0f8;
+    color: #0a0a12;
+    font-weight: 600;
+}
+.intro-btn--primary:hover,
+.intro-btn--primary:focus-visible {
+    border-color: #ffffff;
+    box-shadow: 0 0 24px rgba(238, 240, 248, .35);
+}
+
+.intro-code {
+    justify-self: end;
+    width: 100%;
+    max-width: 30rem;
+    padding: 1.4rem 1.6rem 1.6rem;
+    border-radius: 1.5rem;
+    background: rgba(10, 13, 22, .82);
+    border: 1px solid rgba(139, 128, 189, .14);
+}
+.intro-code-dots {
+    display: flex;
+    gap: 0.45rem;
+    margin-bottom: 1.4rem;
+}
+.intro-code-dots span {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    background: #2a2d3a;
+}
+.intro-code pre {
+    margin: 0;
+    overflow-x: auto;
+}
+.intro-code code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    line-height: 1.75;
+    color: #e7e5ee;
+    white-space: pre;
+}
+.intro-code .c-kw  { color: #8b7cf6; }
+.intro-code .c-key { color: #5eead4; }
+.intro-code .c-str { color: #f4f5f9; }
+.intro-code .c-num { color: #fbbf77; }
+
+/* 아래로 이동한 기존 첫 화면 섹션 */
+#section-more {
+    text-align: center;
+}
+
+@media (max-width: 1023px) {
+    .intro-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+    .intro-code {
+        justify-self: start;
+    }
+}

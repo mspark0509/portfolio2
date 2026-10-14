@@ -339,7 +339,8 @@ button {
 
 /* 프로젝트 소개와 자기소개 메인 타이틀 크기 통일 */
 #heading-2,
-#heading-3 {
+#heading-3,
+#heading-more {
     font-size: clamp(1.5rem, 2.4vw, 1.875rem);
     line-height: 1.25;
 }
@@ -452,81 +453,123 @@ button {
 
 
 /* =========================================================
-   메인 버튼 2개: 호버한 쪽에 불이 들어오고 다른 쪽은 꺼짐
-   - 기본: "프로젝트 상세보기"가 켜져 있고 "소감 및 자소서 읽기"는 꺼진 상태
-   - "소감 및 자소서 읽기"에 마우스를 올리면 → 소감 버튼이 켜지고 상세보기 버튼이 꺼짐
-   - "프로젝트 상세보기"에 올리면 → 기본 상태 그대로 (상세보기 켜짐)
-   - 켜짐/꺼짐은 위에 덧씌운 막의 투명도로 전환해서 부드럽게 바뀝니다.
+   메인 첫 화면: 이름 중심 소개 (MINSU PARK + 코드 카드)
    ========================================================= */
-.hero-cta .cta-btn {
-    position: relative;
-    isolation: isolate;
+.intro-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 3.5rem;
+    width: 100%;
 }
-.hero-cta .cta-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    z-index: -1;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.35s ease;
+.intro-kicker {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    color: #5eead4;
+    margin-bottom: 1.75rem;
 }
-/* 상세보기: 켜진 상태 위에 어두운 막(= 소감 버튼의 꺼진 모습)을 덮어서 끔 */
-.hero-cta .cta-primary::before {
-    background: #171717;
-    box-shadow: inset 0 0 0 1px #262626;
+.intro-name {
+    font-size: clamp(3.5rem, 9.5vw, 8rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    color: #eef0f8;
+    margin-bottom: 2rem;
 }
-/* 소감: 꺼진 상태 위에 그라데이션 막(= 상세보기의 켜진 모습)을 덮어서 켬 */
-.hero-cta .cta-secondary::before {
-    background: var(--accent-grad);
+.intro-name-dim {
+    color: #5b6475;
+}
+.intro-desc {
+    max-width: 38rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #8b93a5;
+    word-break: keep-all;
+    margin-bottom: 2.25rem;
+}
+.intro-desc strong {
+    color: #ffffff;
+    font-weight: 700;
+}
+.intro-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+}
+.intro-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.4rem;
+    border-radius: 0.8rem;
+    border: 1px solid #1f2230;
+    background: #0b0d16;
+    color: #e7e5ee;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: transform .3s cubic-bezier(.16, 1, .3, 1), box-shadow .3s ease, border-color .3s ease;
+}
+.intro-btn:hover,
+.intro-btn:focus-visible {
+    transform: translateY(-2px);
+    border-color: #4a4468;
+    box-shadow: 0 0 22px rgba(139, 91, 201, .35);
+}
+.intro-btn--primary {
+    background: #eef0f8;
+    border-color: #eef0f8;
+    color: #0a0a12;
+    font-weight: 600;
+}
+.intro-btn--primary:hover,
+.intro-btn--primary:focus-visible {
+    border-color: #ffffff;
+    box-shadow: 0 0 24px rgba(238, 240, 248, .35);
 }
 
-.hero-cta:has(.cta-secondary:hover) .cta-primary::before,
-.hero-cta:has(.cta-secondary:focus-visible) .cta-primary::before,
-.hero-cta:has(.cta-secondary:hover) .cta-secondary::before,
-.hero-cta:has(.cta-secondary:focus-visible) .cta-secondary::before {
-    opacity: 1;
+.intro-code {
+    justify-self: end;
+    width: 100%;
+    max-width: 30rem;
+    padding: 1.4rem 1.6rem 1.6rem;
+    border-radius: 1.5rem;
+    background: rgba(10, 13, 22, .82);
+    border: 1px solid rgba(139, 128, 189, .14);
 }
+.intro-code-dots {
+    display: flex;
+    gap: 0.45rem;
+    margin-bottom: 1.4rem;
+}
+.intro-code-dots span {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    background: #2a2d3a;
+}
+.intro-code pre {
+    margin: 0;
+    overflow-x: auto;
+}
+.intro-code code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    line-height: 1.75;
+    color: #e7e5ee;
+    white-space: pre;
+}
+.intro-code .c-kw  { color: #8b7cf6; }
+.intro-code .c-key { color: #5eead4; }
+.intro-code .c-str { color: #f4f5f9; }
+.intro-code .c-num { color: #fbbf77; }
 
-/* 꺼지는 상세보기: 글자색/그림자도 소감 버튼의 꺼진 모습으로 */
-.hero-cta:has(.cta-secondary:hover) .cta-primary,
-.hero-cta:has(.cta-secondary:focus-visible) .cta-primary {
-    color: var(--accent-text) !important;
-    box-shadow: none !important;
-}
-
-/* 켜지는 소감: 테두리/글자색/그림자를 상세보기의 켜진 모습으로 */
-.hero-cta .cta-secondary:hover,
-.hero-cta .cta-secondary:focus-visible {
-    border-color: var(--accent-2) !important;
-    color: #ffffff !important;
-    box-shadow: 0 20px 25px -5px rgba(139, 116, 189, 0.28), 0 0 24px rgba(139, 91, 201, 0.5);
-}
-
-
-/* =========================================================
-   메인 버튼 2개: 화살표는 평소엔 숨겨져 있다가 호버하면 나타남
-   - 화살표 자리는 항상 확보해 두어 버튼 크기가 변하지 않음
-   - 화살표가 없을 땐 글자/아이콘을 화살표 폭의 절반만큼 오른쪽으로 밀어 가운데 정렬,
-     호버하면 제자리로 돌아오면서 화살표가 왼쪽에서 스르륵 나타남
-   ========================================================= */
-.hero-cta .cta-btn > :not(.cta-arrow) {
-    --cta-shift: 0.58rem;   /* 화살표(+간격) 폭의 절반 */
-    transform: translateX(var(--cta-shift));
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.hero-cta .cta-arrow {
-    opacity: 0;
-    transform: translateX(-8px);
-    transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.hero-cta .cta-btn:hover > :not(.cta-arrow),
-.hero-cta .cta-btn:focus-visible > :not(.cta-arrow) {
-    transform: none;
-}
-.hero-cta .cta-btn:hover .cta-arrow,
-.hero-cta .cta-btn:focus-visible .cta-arrow {
-    opacity: 1;
-    transform: none;
+@media (max-width: 1023px) {
+    .intro-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+    .intro-code {
+        justify-self: start;
+    }
 }

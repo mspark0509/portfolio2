@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+<script>try{if(sessionStorage.getItem("planetArrive")){document.documentElement.classList.add("planet-arriving");setTimeout(function(){document.documentElement.classList.remove("planet-arriving")},4000)}}catch(e){}</script>
+
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>PORTFOLIO.DEV | 문의하기</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0a0a0a',
+                        cardBg: '#121212',
+                        cardHover: '#1a1a1a',
+                        borderDark: '#262626',
+                        accentWhite: '#ffffff',
+                        subtleGray: '#a1a1aa'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans KR', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': { opacity: '0.4', transform: 'scale(1)' },
+                            '50%': { opacity: '0.8', transform: 'scale(1.05)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-8px)' }
+                        },
+                        scanline: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(1000%)' }
+                        }
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 6s ease-in-out infinite',
+                        'float': 'float 4s ease-in-out infinite',
+                        'scanline': 'scanline 8s linear infinite'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&amp;family=Inter:wght@300;400;500;600;700;800;900&amp;family=Noto+Sans+KR:wght@300;400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <link href="./resume.css" rel="stylesheet" />
+<link href="./planets.css?v=20261016" rel="stylesheet"/>
+</head>
+
+<body class="relative min-h-screen selection:bg-white selection:text-black">
+    <div aria-hidden="true" class="galaxy-bg"></div><canvas aria-hidden="true" class="fixed inset-0 z-0 pointer-events-none" id="stars"></canvas>
+    <div class="fixed inset-0 grid-bg pointer-events-none z-0"></div>
+    <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" id="main">
+        <section aria-labelledby="heading-contact">
+            <div class="page-section flex flex-col justify-center" id="section-contact">
+                <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+                    <div class="text-center lg:text-left">
+                        <span class="text-xs font-mono text-neutral-500 mb-3 block">// GET IN TOUCH</span>
+                        <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-5 leading-tight" id="heading-contact">함께 멋진 프로젝트를<br/>만들어갈 준비가 되셨나요?</h1>
+                        <p class="text-neutral-400 text-sm max-w-md mx-auto lg:mx-0 mb-8">프로젝트 문의, 채용 관련 논의, 혹은 기술 스터디 관련 언제든 편하게 연락 주시기 바랍니다.</p>
+                        <div class="flex flex-wrap gap-3 justify-center lg:justify-start">
+                            <a class="px-5 py-3 rounded-xl border border-neutral-700 text-sm text-neutral-200 hover:border-neutral-500 hover:text-white transition-colors flex items-center gap-2" href="mailto:mspark0509@gmail.com"><i class="fa-regular fa-envelope"></i> mspark0509@gmail.com</a>
+                            <a class="px-5 py-3 rounded-xl border border-neutral-700 text-sm text-neutral-200 hover:border-neutral-500 hover:text-white transition-colors flex items-center gap-2" href="https://github.com/mspark0509" rel="noopener noreferrer" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
+                        </div>
+                    </div>
+                    <div class="glass-panel w-full max-w-lg mx-auto rounded-2xl border border-neutral-700 p-8 shadow-2xl bg-neutral-950/80">
+                        <h2 class="text-2xl font-bold text-white mb-2">문의 및 메시지 전송</h2>
+                        <p class="text-xs text-neutral-400 mb-6">아래 양식을 입력해 주시면 확인 후 신속하게 답변드리겠습니다.</p>
+                        <form class="space-y-4" id="contactForm">
+                            <div>
+                                <label class="block text-xs font-mono text-neutral-300 mb-1" for="contact-name">성함 / 기업명</label>
+                                <input autocomplete="name" class="w-full px-4 py-2.5 rounded-lg bg-neutral-900 border border-neutral-800 text-white text-sm focus:outline-none focus:border-white transition-colors" id="contact-name" name="name" placeholder="홍길동" required="" type="text" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-mono text-neutral-300 mb-1" for="contact-email">이메일 주소</label>
+                                <input autocomplete="email" class="w-full px-4 py-2.5 rounded-lg bg-neutral-900 border border-neutral-800 text-white text-sm focus:outline-none focus:border-white transition-colors" id="contact-email" name="email" placeholder="example@email.com" required="" type="email" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-mono text-neutral-300 mb-1" for="contact-message">메시지 내용</label>
+                                <textarea class="w-full px-4 py-2.5 rounded-lg bg-neutral-900 border border-neutral-800 text-white text-sm focus:outline-none focus:border-white transition-colors resize-none" id="contact-message" name="message" placeholder="문의하실 내용을 자유롭게 작성해주세요..." required="" rows="5"></textarea>
+                            </div>
+                            <button class="w-full py-3.5 bg-white text-black font-bold text-xs rounded-lg hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2" type="submit">
+                                <i class="fa-solid fa-paper-plane text-xs"></i> 메시지 발송하기
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div class="fixed bottom-6 right-6 z-50 glass-panel px-5 py-3 rounded-xl border border-neutral-700 text-xs text-white flex items-center gap-3 opacity-0 translate-y-4 pointer-events-none shadow-xl" id="toast">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+        <span id="toastMessage">성공적으로 전송되었습니다!</span>
+    </div>
+    <script defer src="./stars.js"></script>
+    <script defer src="./planets.js?v=20261026"></script>
+    <script defer src="./contact.js"></script>
+</body>
+</html>

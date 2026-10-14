@@ -1,0 +1,434 @@
+/* =========================================================
+   모서리 행성 메뉴 + 오른쪽 별 섹션 네비 + 행성 비행 전환 — 모든 페이지 공통
+   - 행성은 크게 키워 화면 네 모서리에 걸쳐 두고, 평소에는 어둡게 (멀리 떠 있는 느낌)
+   - 지금 보고 있는 페이지의 행성만 왼쪽 위 모서리에서 불이 켜진 채로 보입니다.
+   행성 이미지: images/planets/*.webp (직접 렌더링한 실사풍 이미지, 투명 배경)
+   ========================================================= */
+
+:root {
+    --nav-r: 4.75rem;
+    --page-top: 8.5rem;   /* 왼쪽 위 행성이 차지하는 높이만큼 본문을 아래로 */
+}
+
+/* ---------- 모서리 행성 ---------- */
+.planet-nav {
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    pointer-events: none;
+}
+
+.planet {
+    --d: 12rem;          /* 행성 원반 지름 */
+    --disc: .875;        /* 이미지 폭 중 원반이 차지하는 비율 */
+    --ar: 1;             /* 이미지 가로/세로 */
+    --reach: 6rem;       /* 모서리에서 화면 안쪽으로 보이는 길이 */
+    --w: calc(var(--d) / var(--disc));
+    --h: calc(var(--w) / var(--ar));
+    --off: calc(var(--reach) - var(--d) / 2);   /* 모서리→행성 중심 (음수면 중심이 화면 밖) */
+    --glow: rgba(255, 220, 180, .6);
+    --float: driftA;
+    --dur: 18s;
+    --delay: 0s;
+
+    position: absolute;
+    left: 0;
+    top: 0;
+    will-change: transform;
+    width: var(--w);
+    height: var(--h);
+    display: block;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;          /* 클릭 영역 = 행성 원/타원 */
+    background: none;
+    text-decoration: none;
+    pointer-events: auto;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.planet > * { pointer-events: none; }
+.planet:focus-visible { outline: none; }
+
+/* 위치는 planets.js가 화면 가장자리를 도는 궤도 위에서 매 프레임 계산합니다 */
+
+/* 행성별 크기 (실제 크기 순서를 유지) */
+.planet--jupiter { --d: 17rem;   --glow: rgba(255, 186, 120, .7); --float: driftA; --dur: 19s; --delay: -4s; }
+.planet--uranus  { --d: 12.5rem; --glow: rgba(140, 228, 238, .7); --float: driftB; --dur: 22s; --delay: -9s; }
+.planet--mercury { --d: 8.5rem;  --glow: rgba(225, 220, 210, .6); --float: driftC; --dur: 16s; --delay: -2s; }
+.planet--saturn  { --d: 11rem;  --disc: .4167; --ar: 2.0339; --glow: rgba(244, 218, 160, .65); --float: driftD; --dur: 24s; --delay: -12s; }
+
+.planet-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+    /* 선택 안 된 행성: 어둡고 차갑게 */
+    filter: brightness(.34) saturate(.7) contrast(1.05);
+    will-change: transform;
+    transition: filter .6s ease, transform .7s cubic-bezier(.16, 1, .3, 1);
+}
+.planet:hover .planet-img,
+.planet:focus-visible .planet-img {
+    filter: brightness(.8) saturate(1) contrast(1.02);
+    transform: scale(1.16);
+}
+
+/* 선택된(현재 페이지) 행성: 불이 켜진 느낌 */
+.planet.is-active .planet-img {
+    filter: brightness(1.08) saturate(1.06);
+}
+.planet.is-active:hover .planet-img,
+.planet.is-active:focus-visible .planet-img {
+    filter: brightness(1.2) saturate(1.1);
+}
+.planet-glow {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(var(--d) * 1.9);
+    height: calc(var(--d) * 1.9);
+    margin: calc(var(--d) * -.95) 0 0 calc(var(--d) * -.95);
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--glow) 0%, rgba(0, 0, 0, 0) 62%);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .45s ease, transform .6s cubic-bezier(.16, 1, .3, 1), visibility 0s linear .45s;
+}
+.planet:hover .planet-glow,
+.planet:focus-visible .planet-glow { opacity: .6; transform: scale(1.12); visibility: visible; transition-delay: 0s; }
+.planet.is-active .planet-glow {
+    visibility: visible;
+    opacity: .5;
+    animation: planetBreathe 5s ease-in-out infinite;
+}
+@keyframes planetBreathe {
+    0%, 100% { opacity: .38; transform: scale(.97); }
+    50%      { opacity: .62; transform: scale(1.04); }
+}
+
+/* 아주 천천히 떠다니는 모션 */
+@keyframes driftA {
+    0%, 100% { translate: 0 0; }
+    30%      { translate: 7px 9px; }
+    65%      { translate: -5px 4px; }
+}
+@keyframes driftB {
+    0%, 100% { translate: 0 0; }
+    35%      { translate: -8px -6px; }
+    70%      { translate: 6px 7px; }
+}
+@keyframes driftC {
+    0%, 100% { translate: 0 0; }
+    40%      { translate: 9px 6px; }
+    75%      { translate: -4px -5px; }
+}
+@keyframes driftD {
+    0%, 100% { translate: 0 0; }
+    30%      { translate: -9px 7px; }
+    60%      { translate: 6px -4px; }
+}
+
+/* 호버/포커스 시 화면 안쪽으로 나오는 이름표 (JS가 위치를 잡음) */
+.planet-tip {
+    --tip: rgba(139, 128, 189, .6);
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 46;
+    white-space: nowrap;
+    padding: 9px 18px;
+    border-radius: 999px;
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    color: #fff;
+    background: rgba(8, 8, 20, .94);
+    border: 1px solid var(--tip);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .06), 0 0 22px var(--tip), 0 8px 24px rgba(0, 0, 0, .55);
+    text-shadow: 0 0 10px var(--tip);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+}
+.planet-tip.is-on { opacity: 1; }
+
+/* ---------- 행성 비행 전환 ---------- */
+.planet.is-flying { animation: none; }
+.planet.is-flying .planet-img,
+.planet.is-flying .planet-glow { visibility: hidden; }
+/* 도착 후 왼쪽 위 자리로 안착하는 동안 진짜 행성은 숨겨 둠 */
+.planet.is-arriving { opacity: 0; animation-play-state: paused; }
+.planet { transition: opacity .35s ease; }
+
+html.planet-travel .planet-nav .planet:not(.is-flying),
+html.planet-travel .section-nav,
+html.planet-travel #main,
+html.planet-travel #scrollProgress {
+    opacity: 0;
+    transition: opacity .7s ease;
+    pointer-events: none;
+}
+html.planet-travel .planet-tip { opacity: 0; }
+
+.planet-fly {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    overflow: hidden;
+    pointer-events: none;
+}
+.planet-fly .fly-wrap {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    max-width: none;
+    transform-origin: 50% 50%;
+    will-change: transform;
+}
+.planet-fly .fly-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+.planet-fly .fly-img--dark {
+    filter: brightness(.34) saturate(.7) contrast(1.05);   /* 정적 필터: 한 번만 그려짐 */
+}
+
+/* 새 페이지 도착 직전: 본문을 숨겨 두었다가 행성이 안착하는 동안 천천히 나타남 */
+html.planet-arriving body > *:not(.planet-fly) { opacity: 0 !important; }
+html.planet-reveal body > *:not(.planet-fly) { transition: opacity 1.2s ease; }
+
+/* ---------- 오른쪽: 별 모양 섹션 네비 ---------- */
+.section-nav {
+    position: fixed;
+    right: 1.1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 45;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .7rem;
+}
+.section-nav[hidden] { display: none; }
+
+.section-star {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 0;
+    background: none;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    filter: drop-shadow(0 0 0 rgba(196, 181, 255, 0)) drop-shadow(0 0 0 rgba(139, 116, 189, 0));
+    transition: filter .5s ease;
+}
+/* 꺼진 상태: 모서리가 짧은 다이아몬드 */
+.section-star-shape {
+    display: block;
+    width: 28px;
+    height: 28px;
+    background: #565c76;
+    clip-path: polygon(50% 20%, 57% 43%, 80% 50%, 57% 57%, 50% 80%, 43% 57%, 20% 50%, 43% 43%);
+    transition: clip-path .55s cubic-bezier(.16, 1, .3, 1), background .45s ease, transform .55s cubic-bezier(.16, 1, .3, 1);
+}
+.section-star:hover .section-star-shape,
+.section-star:focus-visible .section-star-shape {
+    background: #8f97b8;
+}
+/* 켜진 상태: 모서리가 길게 늘어나고 커지며 빛남 */
+.section-star.is-active {
+    filter: drop-shadow(0 0 5px rgba(196, 181, 255, .95)) drop-shadow(0 0 13px rgba(139, 116, 189, .75));
+}
+.section-star.is-active .section-star-shape {
+    clip-path: polygon(50% 0, 59% 41%, 100% 50%, 59% 59%, 50% 100%, 41% 59%, 0 50%, 41% 41%);
+    background: linear-gradient(135deg, #ffffff 0%, #ddd1ff 55%, #a78bfa 100%);
+    transform: scale(1.3);
+}
+
+/* ---------- 본문이 별 네비와 겹치지 않게 ---------- */
+#main {
+    padding-right: max(1rem, calc(var(--nav-r) - max(0px, (100vw - 80rem) / 2)));
+}
+
+/* =========================================================
+   왼쪽 위 행성 영역만큼 본문 위쪽 여백 확보
+   ========================================================= */
+.page-section {
+    padding-top: var(--page-top);
+}
+#section-preview {
+    padding-top: var(--page-top);
+}
+#section-preview > .flex:first-child {
+    margin-bottom: 1.75rem;
+}
+@media (min-width: 1024px) and (min-height: 560px) {
+    #detail-haevichi .page-section,
+    #detail-byheydey .page-section {
+        min-height: 100vh;
+        min-height: 100dvh;
+        padding-bottom: 2.5rem;
+    }
+    .project-detail-spacer {
+        padding: var(--page-top) 0 1.5rem;
+    }
+}
+
+@media (max-width: 1023px) {
+    :root { --nav-r: 4rem; }
+}
+@media (max-width: 767px) {
+    :root { --nav-r: 1rem; --page-top: 5rem; }
+    .planet--jupiter { --d: 11rem; }
+    .planet--uranus  { --d: 8rem; }
+    .planet--mercury { --d: 5.6rem; }
+    .planet--saturn  { --d: 7.4rem; }
+    .section-nav { right: .35rem; gap: .35rem; }
+    .section-star { width: 30px; height: 30px; }
+    .section-star-shape { width: 21px; height: 21px; }
+}
+
+/* =========================================================
+   모바일 / 태블릿 반응형
+   ========================================================= */
+.nav-burger, .nav-sheet { display: none; }
+
+/* 섹션 단위로 딱딱 넘어가는 스크롤 (내용이 화면보다 길면 섹션이 늘어나며 그 안에서는 자유 스크롤) */
+@media (max-width: 1023px) {
+    html { scroll-snap-type: y mandatory; }
+    .page-section,
+    .project-detail-spacer {
+        scroll-snap-align: start;
+        scroll-snap-stop: normal;
+    }
+    .page-section {
+        min-height: 100vh;
+        min-height: 100svh;
+        padding-bottom: 3rem;
+    }
+}
+
+@media (max-width: 767px) {
+    /* 행성·별 네비는 숨기고 오른쪽 위 햄버거로 대체 */
+    .planet-nav, .planet-tip, .section-nav { display: none !important; }
+    #main { padding-right: 1rem; }
+
+    /* 프로젝트 시연화면: 이미 모바일 화면이므로 Desktop / Mobile 전환 버튼은 숨김 */
+    #vp-btn-desktop, #vp-btn-mobile { display: none; }
+
+    .nav-burger {
+        position: fixed;
+        top: .75rem;
+        right: .75rem;
+        z-index: 70;
+        width: 46px;
+        height: 46px;
+        padding: 0;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        border: 1px solid rgba(139, 128, 189, .3);
+        background: rgba(18, 18, 30, .72);
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .nav-burger-bars {
+        position: relative;
+        width: 20px;
+        height: 14px;
+        display: block;
+    }
+    .nav-burger-bars i {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        border-radius: 2px;
+        background: #e7e5ee;
+        transition: transform .35s cubic-bezier(.16, 1, .3, 1), opacity .2s ease, top .35s cubic-bezier(.16, 1, .3, 1);
+    }
+    .nav-burger-bars i:nth-child(1) { top: 0; }
+    .nav-burger-bars i:nth-child(2) { top: 6px; }
+    .nav-burger-bars i:nth-child(3) { top: 12px; }
+    .nav-burger[aria-expanded="true"] .nav-burger-bars i:nth-child(1) { top: 6px; transform: rotate(45deg); }
+    .nav-burger[aria-expanded="true"] .nav-burger-bars i:nth-child(2) { opacity: 0; }
+    .nav-burger[aria-expanded="true"] .nav-burger-bars i:nth-child(3) { top: 6px; transform: rotate(-45deg); }
+
+    .nav-sheet {
+        position: fixed;
+        inset: 0;
+        z-index: 65;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: .4rem;
+        padding: 5rem 2rem 2rem;
+        background: rgba(4, 4, 12, .94);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity .3s ease, visibility 0s linear .3s;
+    }
+    .nav-sheet.is-open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transition: opacity .3s ease;
+    }
+    .nav-sheet a {
+        display: flex;
+        align-items: center;
+        gap: .9rem;
+        padding: .95rem .25rem;
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #9aa0b8;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(139, 128, 189, .14);
+        transform: translateY(10px);
+        opacity: 0;
+        transition: transform .45s cubic-bezier(.16, 1, .3, 1), opacity .35s ease, color .2s ease;
+    }
+    .nav-sheet.is-open a { transform: none; opacity: 1; }
+    .nav-sheet.is-open a:nth-child(2) { transition-delay: .05s; }
+    .nav-sheet.is-open a:nth-child(3) { transition-delay: .1s; }
+    .nav-sheet.is-open a:nth-child(4) { transition-delay: .15s; }
+    .nav-sheet a[aria-current="page"] { color: #fff; }
+    .nav-sheet-dot {
+        width: 14px;
+        height: 14px;
+        flex: none;
+        background: #565c76;
+        clip-path: polygon(50% 0, 59% 41%, 100% 50%, 59% 59%, 50% 100%, 41% 59%, 0 50%, 41% 41%);
+    }
+    .nav-sheet a[aria-current="page"] .nav-sheet-dot {
+        background: linear-gradient(135deg, #fff 0%, #ddd1ff 55%, #a78bfa 100%);
+        filter: drop-shadow(0 0 5px rgba(196, 181, 255, .9));
+    }
+    html.nav-open { overflow: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .planet { animation: none; }
+    .planet.is-active .planet-glow { animation: none; }
+}
+
+/* 거의 보이지 않는(흰색 2%) 큰 블러 + 무한 애니메이션 배경 장식은 GPU만 쓰므로 숨김 */
+.blur-3xl.animate-pulse-glow { display: none; }
