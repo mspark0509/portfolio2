@@ -51,6 +51,7 @@
     let R = 0, L = 0;                    // 별밭(정사각형)의 반변 / 한 변. 화면 대각선 반경 이상
     let dpr = 1;
     let raf = 0;
+    let skip = 0;
     let resizeTimer = 0;
     let lastTs = performance.now();
     let lastScrollTs = lastTs;
@@ -305,6 +306,10 @@
         if (reducedMotion.matches) return;
         raf = requestAnimationFrame(frame);
         if (document.hidden) return;
+        // 행성 전환으로 화면이 완전히 가려진 동안은 별을 그리지 않고, 전환 중에는 2프레임에 한 번만 그려 부담을 줄입니다.
+        const cls = document.documentElement.classList;
+        if (cls.contains('planet-cover')) { lastTs = ts; return; }
+        if (cls.contains('planet-travel') && (skip ^= 1)) { lastTs = ts; return; }
 
         // 스크롤 속도 → 워프 속도 (아래로 스크롤 = 별은 위로)
         const sy = window.scrollY || 0;

@@ -6,10 +6,10 @@
 (function () {
     const IMG_DIR = './images/planets/';
     const MENU = [
-        { key: 'main',     cls: 'planet--jupiter', label: '메인',          href: 'index.html',    img: 'jupiter', reach: 9.6, ar: 1,      disc: 0.875 },
-        { key: 'projects', cls: 'planet--uranus',  label: '프로젝트 소개', href: 'projects.html', img: 'uranus', reach: 8.6,  ar: 1,      disc: 0.875 },
-        { key: 'resume',   cls: 'planet--mercury', label: '소감 & 자소서', href: 'resume.html',   img: 'mercury', reach: 7.4, ar: 1,      disc: 0.875 },
-        { key: 'contact',  cls: 'planet--saturn',  label: '문의하기',      href: 'contact.html', img: 'saturn', reach: 8.4,  ar: 2.0339, disc: 0.4167 }
+        { key: 'main',     cls: 'planet--jupiter', label: '메인',          href: 'index.html',    img: 'jupiter', nat: 1600, reach: 9.6, ar: 1,      disc: 0.875 },
+        { key: 'projects', cls: 'planet--uranus',  label: '프로젝트 소개', href: 'projects.html', img: 'uranus', nat: 1600, reach: 8.6,  ar: 1,      disc: 0.875 },
+        { key: 'resume',   cls: 'planet--mercury', label: '소감 & 자소서', href: 'resume.html',   img: 'mercury', nat: 1600, reach: 7.4, ar: 1,      disc: 0.875 },
+        { key: 'contact',  cls: 'planet--saturn',  label: '문의하기',      href: 'contact.html', img: 'saturn', nat: 2400, reach: 8.4,  ar: 2.0339, disc: 0.4167 }
     ];
     const BY_KEY = Object.fromEntries(MENU.map((m) => [m.key, m]));
 
@@ -128,7 +128,10 @@
         const vw = window.innerWidth;
         const vh = window.innerHeight;
         const diag = Math.hypot(vw, vh);
-        const W = (diag * 1.08) / item.disc;
+        const coverW = (diag * 1.08) / item.disc;          // 화면을 덮는 데 필요한 가로 크기
+        // 이미지를 원본 해상도보다 크게 깔면 GPU 메모리만 늘고 화질은 그대로라서, 원본 크기까지만 깔고 나머지는 확대(scale)로 채웁니다.
+        const W = Math.min(coverW, item.nat);
+        const F = coverW / W;                              // 최종 확대 배율 (1 이상)
         const H = W / item.ar;
 
         const fly = document.createElement('div');
@@ -158,6 +161,8 @@
         img._ready = lit;
         fly._dark = dark;
         fly.appendChild(img);
+        fly._F = F;
+        img.style.transform = `scale(${F})`;
         // 행성까지 포함해 화면 전체를 덮는 어둠 막
         const dim = document.createElement('div');
         dim.style.cssText = 'position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;';
@@ -197,7 +202,7 @@
                 const angle = a0 + Math.PI * 2 * easeInOut(clamp01(p / 0.82));
                 const radius = r0 * (1 - sm(clamp01((p - 0.12) / 0.88)));
                 const z = sm(clamp01((p - 0.3) / 0.7));
-                const scale = s0 * Math.pow(1 / s0, Math.pow(z, 1.5));
+                const scale = s0 * Math.pow(fly._F / s0, Math.pow(z, 1.5));
                 const lit = sm(clamp01((p - 0.15) / 0.7));              // 다가오며 밝아짐
                 const x = Math.cos(angle) * radius;
                 const y = Math.sin(angle) * radius;
@@ -206,6 +211,7 @@
                 // 어둠: 행성이 눈앞에 왔을 때만 짧게 (마지막 18%)
                 const near = sm(clamp01((p - 0.82) / 0.18));
                 fly._dim.style.opacity = (DARK * near).toFixed(3);
+                if (near > 0.6) root.classList.add('planet-cover');
                 if (p < 1) requestAnimationFrame(frame);
                 else resolve();
             }
@@ -224,10 +230,11 @@
         const dy = (r.top + r.height / 2) - vh / 2;
 
         const a = img.animate([
-            { transform: 'translate3d(0px, 0px, 0) scale(1)' },
+            { transform: `translate3d(0px, 0px, 0) scale(${fly._F})` },
             { transform: `translate3d(${dx}px, ${dy}px, 0) scale(${s1})` }
         ], { duration: 1700, easing: 'cubic-bezier(.5,0,.15,1)', fill: 'forwards' });
         // 멀어지며 현재 페이지 행성은 밝게, 나머지는 어둡게 자리 잡습니다.
+        setTimeout(() => root.classList.remove('planet-cover'), 180);   // 화면이 밝아지기 시작하면 별 그리기 재개
         fly._dark.style.opacity = '0';
         fly._dark.animate([{ opacity: 0 }, { opacity: lit ? 0 : 1 }], { duration: 1700, easing: 'ease-in', fill: 'forwards' });
 
@@ -290,7 +297,7 @@
 
     function reset() {
         travelling = false;
-        root.classList.remove('planet-travel', 'planet-arriving', 'planet-reveal');
+        root.classList.remove('planet-travel', 'planet-arriving', 'planet-reveal', 'planet-cover');
         document.querySelectorAll('.planet.is-flying, .planet.is-arriving').forEach((p) => p.classList.remove('is-flying', 'is-arriving'));
         document.querySelectorAll('.planet-fly').forEach((f) => f.remove());
     }
@@ -306,9 +313,19 @@
             if (el) el.classList.remove('is-arriving');
             return;
         }
+        root.classList.add('planet-cover');
         const { fly, img, W } = makeFly(item);
         fly._dim.style.opacity = DARK;
         await Promise.race([whenReady(img), new Promise((res) => setTimeout(res, 1500))]);
+        // 페이지 로딩(Tailwind 계산·폰트 등)이 끝난 뒤에 움직이기 시작해야 끊기지 않습니다. 너무 오래 걸리면 2.5초 뒤 그냥 시작.
+        await Promise.race([
+            new Promise((res) => {
+                const go = () => requestAnimationFrame(() => requestAnimationFrame(res));
+                if (document.readyState === 'complete') go();
+                else window.addEventListener('load', go, { once: true });
+            }),
+            new Promise((res) => setTimeout(res, 2500))
+        ]);
         // 본문이 행성 뒤에서 천천히 나타나도록
         root.classList.add('planet-reveal');
         root.classList.remove('planet-arriving');
@@ -556,6 +573,9 @@
         const atTop = () => window.scrollY <= 0;
 
         function setAll(transition, v) {
+            const wc = v ? 'transform' : '';
+            main.style.willChange = wc;
+            bgEls.forEach((el) => { el.style.willChange = wc; });
             main.style.transition = transition;
             main.style.transform = v ? `translate3d(0, ${v.toFixed(1)}px, 0)` : '';
             bgEls.forEach((el) => {
