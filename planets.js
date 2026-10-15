@@ -5,11 +5,12 @@
 // - 도착한 페이지에서는 확대된 행성이 왼쪽 위 모서리로 물러나며 본문이 나타납니다.
 (function () {
     const IMG_DIR = './images/planets/';
+    // 행성 크기: 메인 > 프로젝트 소개 > 자소서 > 문의 순서로 점점 작아집니다 (크기는 planets.css의 --d)
     const MENU = [
-        { key: 'main',     cls: 'planet--jupiter', label: '메인',          href: 'index.html',    img: 'jupiter', nat: 1600, reach: 9.6, ar: 1,      disc: 0.875 },
-        { key: 'projects', cls: 'planet--uranus',  label: '프로젝트 소개', href: 'projects.html', img: 'uranus', nat: 1600, reach: 8.6,  ar: 1,      disc: 0.875 },
-        { key: 'resume',   cls: 'planet--mercury', label: '소감 & 자소서', href: 'resume.html',   img: 'mercury', nat: 1600, reach: 7.4, ar: 1,      disc: 0.875 },
-        { key: 'contact',  cls: 'planet--saturn',  label: '문의하기',      href: 'contact.html', img: 'saturn', nat: 2400, reach: 8.4,  ar: 2.0339, disc: 0.4167 }
+        { key: 'main',     cls: 'planet--jupiter', label: '메인',          href: 'index.html',    img: 'jupiter', nat: 1600, ar: 1,      disc: 0.875 },
+        { key: 'projects', cls: 'planet--saturn',  label: '프로젝트 소개', href: 'projects.html', img: 'saturn',  nat: 2400, ar: 2.0339, disc: 0.4167 },
+        { key: 'resume',   cls: 'planet--uranus',  label: '소감 & 자소서', href: 'resume.html',   img: 'uranus',  nat: 1600, ar: 1,      disc: 0.875 },
+        { key: 'contact',  cls: 'planet--mercury', label: '문의하기',      href: 'contact.html',  img: 'mercury', nat: 1600, ar: 1,      disc: 0.875 }
     ];
     const BY_KEY = Object.fromEntries(MENU.map((m) => [m.key, m]));
 
@@ -25,7 +26,6 @@
         : 'main';
 
     let travelling = false;
-    let tip = null;
     const planetEls = {};
 
     function span(cls) {
@@ -82,45 +82,20 @@
             img.draggable = false;
             el.appendChild(img);
 
+            // 행성 아래 메뉴 이름 (평소엔 꺼진 상태, 호버/선택 시 불이 켜짐)
+            const lab = span('planet-label');
+            lab.textContent = item.label;
+            el.appendChild(lab);
+
             el.addEventListener('click', (e) => onPlanetClick(e, item, el));
-            el.addEventListener('pointerenter', () => showTip(item, el));
-            el.addEventListener('pointerleave', hideTip);
-            el.addEventListener('focus', () => showTip(item, el));
-            el.addEventListener('blur', hideTip);
 
             planetEls[item.key] = el;
             nav.appendChild(el);
         });
 
-        tip = document.createElement('div');
-        tip.className = 'planet-tip';
-        tip.setAttribute('aria-hidden', 'true');
-
         document.body.appendChild(nav);
-        document.body.appendChild(tip);
     }
 
-    /* ---------- 이름표: 행성의 화면에 보이는 부분 옆에 ---------- */
-    function showTip(item, el) {
-        if (!tip || travelling) return;
-        const r = el.getBoundingClientRect();
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        const x0 = Math.max(0, r.left), x1 = Math.min(vw, r.right);
-        const y0 = Math.max(0, r.top),  y1 = Math.min(vh, r.bottom);
-        tip.textContent = item.label;
-        tip.style.setProperty('--tip', getComputedStyle(el).getPropertyValue('--glow') || 'rgba(139,128,189,.6)');
-        const tw = tip.offsetWidth;
-        const th = tip.offsetHeight;
-        const low = (y0 + y1) / 2 > vh / 2;
-        let x = (x0 + x1) / 2 - tw / 2;
-        let y = low ? y0 - th - 10 : y1 + 10;
-        x = Math.min(Math.max(10, x), vw - tw - 10);
-        y = Math.min(Math.max(10, y), vh - th - 10);
-        tip.style.transform = `translate(${x}px, ${y}px)`;
-        tip.classList.add('is-on');
-    }
-    function hideTip() { if (tip) tip.classList.remove('is-on'); }
 
     /* ---------- 오버레이 만들기 ---------- */
     // 오버레이 이미지는 "화면을 덮는 최종 크기"로 만들어 두고 transform만 바꿉니다.
@@ -273,7 +248,6 @@
         }
 
         travelling = true;
-        hideTip();
         const start = el.querySelector('.planet-img').getBoundingClientRect();
         const { fly, img, W, vw, vh } = makeFly(item);
         await Promise.race([whenReady(img), new Promise((res) => setTimeout(res, 1200))]);
@@ -439,11 +413,14 @@
         });
         measure();
         window.addEventListener('resize', measure, { passive: true });
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+        window.addEventListener('load', measure, { once: true });
         requestAnimationFrame(orbitFrame);
     }
 
     // 크기/글자 크기는 리사이즈 때만 다시 읽습니다 (매 프레임 레이아웃 계산 방지).
-    const cache = { fs: 16, w: {}, h: {} };
+    const cache = { fs: 16, w: {}, h: {}, lw: {} };
+    const labelState = {};
     const compact = window.matchMedia('(max-width: 767px)');   // 모바일에서는 행성이 숨겨져 있으므로 계산 생략
     function measure() {
         cache.fs = parseFloat(getComputedStyle(root).fontSize) || 16;
@@ -452,6 +429,8 @@
             if (!el) return;
             cache.w[m.key] = el.offsetWidth;
             cache.h[m.key] = el.offsetHeight;
+            const lb = el.querySelector('.planet-label');
+            cache.lw[m.key] = lb ? lb.offsetWidth : 0;
         });
     }
 
@@ -507,6 +486,15 @@
             const bx = Math.sin(tt * w8.fx * 6.283 + w8.px) * 0.9 * fs * amp;   // 좌우 둥둥
             const by = Math.sin(tt * w8.fy * 6.283 + w8.py) * 1.3 * fs * amp;   // 위아래 둥둥
             g.el.style.transform = `translate(${(g.x - g.w / 2 + bx).toFixed(1)}px, ${(g.y - g.h / 2 + by).toFixed(1)}px)`;
+
+            // 이름표: 행성이 화면 아래쪽에 있으면 위쪽에, 화면 가장자리에서는 안쪽으로 밀어 항상 보이게
+            const key = item.key;
+            const up = g.y > vh * 0.6;
+            const half = (cache.lw[key] || 0) / 2 + 12;
+            const lx = Math.round(Math.min(Math.max(g.x, half), vw - half) - g.x);
+            const st = labelState[key] || (labelState[key] = { up: null, lx: null });
+            if (st.up !== up) { st.up = up; g.el.classList.toggle('is-up', up); }
+            if (st.lx !== lx) { st.lx = lx; g.el.style.setProperty('--lx', lx + 'px'); }
         });
     }
 

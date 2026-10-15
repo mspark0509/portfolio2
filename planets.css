@@ -54,9 +54,9 @@
 
 /* 행성별 크기 (실제 크기 순서를 유지) */
 .planet--jupiter { --d: 17rem;   --glow: rgba(255, 186, 120, .7); --float: driftA; --dur: 19s; --delay: -4s; }
-.planet--uranus  { --d: 12.5rem; --glow: rgba(140, 228, 238, .7); --float: driftB; --dur: 22s; --delay: -9s; }
-.planet--mercury { --d: 8.5rem;  --glow: rgba(225, 220, 210, .6); --float: driftC; --dur: 16s; --delay: -2s; }
-.planet--saturn  { --d: 11rem;  --disc: .4167; --ar: 2.0339; --glow: rgba(244, 218, 160, .65); --float: driftD; --dur: 24s; --delay: -12s; }
+.planet--uranus  { --d: 10rem; --glow: rgba(140, 228, 238, .7); --float: driftB; --dur: 22s; --delay: -9s; }
+.planet--mercury { --d: 7.5rem;  --glow: rgba(225, 220, 210, .6); --float: driftC; --dur: 16s; --delay: -2s; }
+.planet--saturn  { --d: 12.5rem; --disc: .4167; --ar: 2.0339; --glow: rgba(244, 218, 160, .65); --float: driftD; --dur: 24s; --delay: -12s; }
 
 .planet-img {
     display: block;
@@ -109,6 +109,38 @@
     0%, 100% { opacity: .38; transform: scale(.97); }
     50%      { opacity: .62; transform: scale(1.04); }
 }
+
+/* ---------- 행성 아래 메뉴 이름 ---------- */
+.planet-label {
+    position: absolute;
+    left: 50%;
+    top: calc(50% + var(--d) / 2 + .7rem);
+    transform: translateX(calc(-50% + var(--lx, 0px)));
+    white-space: nowrap;
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    font-size: .95rem;
+    font-weight: 700;
+    letter-spacing: .03em;
+    color: rgba(150, 156, 188, .4);            /* 꺼진 상태 */
+    text-shadow: none;
+    pointer-events: none;
+    transition: color .5s ease, text-shadow .5s ease, margin .6s cubic-bezier(.16, 1, .3, 1);
+}
+.planet.is-up .planet-label {
+    top: auto;
+    bottom: calc(50% + var(--d) / 2 + .7rem);
+}
+/* 켜진 상태: 호버/포커스 또는 현재 페이지 — 행성처럼 불이 들어옴 */
+.planet:hover .planet-label,
+.planet:focus-visible .planet-label,
+.planet.is-active .planet-label {
+    color: #fff;
+    text-shadow: 0 0 .5rem var(--glow), 0 0 1.2rem var(--glow), 0 0 2.2rem var(--glow);
+}
+/* 호버로 행성이 커지는 만큼 이름표도 비켜 줌 */
+.planet:hover .planet-label { margin-top: calc(var(--d) * .08); }
+.planet.is-up:hover .planet-label { margin-top: 0; margin-bottom: calc(var(--d) * .08); }
+.planet.is-flying .planet-label { visibility: hidden; }
 
 /* 아주 천천히 떠다니는 모션 */
 @keyframes driftA {
@@ -293,9 +325,9 @@ html.planet-reveal body > *:not(.planet-fly) { transition: opacity 1.2s ease; }
 @media (max-width: 767px) {
     :root { --nav-r: 1rem; --page-top: 5rem; }
     .planet--jupiter { --d: 11rem; }
-    .planet--uranus  { --d: 8rem; }
-    .planet--mercury { --d: 5.6rem; }
-    .planet--saturn  { --d: 7.4rem; }
+    .planet--uranus  { --d: 7rem; }
+    .planet--mercury { --d: 5.2rem; }
+    .planet--saturn  { --d: 8.4rem; }
     .section-nav { right: .35rem; gap: .35rem; }
     .section-star { width: 30px; height: 30px; }
     .section-star-shape { width: 21px; height: 21px; }
@@ -323,7 +355,7 @@ html.planet-reveal body > *:not(.planet-fly) { transition: opacity 1.2s ease; }
 
 @media (max-width: 767px) {
     /* 행성·별 네비는 숨기고 오른쪽 위 햄버거로 대체 */
-    .planet-nav, .planet-tip, .section-nav { display: none !important; }
+    .planet-nav, .section-nav { display: none !important; }
     #main { padding-right: 1rem; }
 
     /* 프로젝트 시연화면: 이미 모바일 화면이므로 Desktop / Mobile 전환 버튼은 숨김 */
