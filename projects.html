@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8" />
-<script>try{if(sessionStorage.getItem("planetArrive")){document.documentElement.classList.add("planet-arriving");setTimeout(function(){document.documentElement.classList.remove("planet-arriving")},4000)}}catch(e){}</script>
+    <script>try { if (sessionStorage.getItem("planetArrive")) { document.documentElement.classList.add("planet-arriving"); setTimeout(function () { document.documentElement.classList.remove("planet-arriving") }, 4000) } } catch (e) { }</script>
 
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>PORTFOLIO.DEV | 프로젝트 소개</title>
@@ -59,7 +59,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
     <link href="./projects.css" rel="stylesheet" />
-<link href="./planets.css?v=20261028" rel="stylesheet"/>
+    <link href="./planets.css?v=20261016-smooth2-smooth2" rel="stylesheet" />
 </head>
 
 <body class="relative min-h-screen selection:bg-white selection:text-black">
@@ -75,13 +75,12 @@
         id="scrollProgress" style="width: 0%;"></div>
     <!-- Main Dynamic Content Wrapper -->
     <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" id="main">
-<section aria-labelledby="heading-2" class="tab-content "
-            id="page-projects">
+        <section aria-labelledby="heading-2" class="tab-content " id="page-projects">
             <!-- Section 1: 제목 / 프로젝트 선택 / 실시간 미리보기 -->
             <div class="page-section" id="section-preview">
                 <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-8">
                     <div class="text-center md:text-left">
-                        <span class="text-xs font-mono text-neutral-500 block mb-1">// DETAILED PROJECT DEEP-DIVE</span>
+                        <span class="text-xs font-mono kicker block mb-1">// DETAILED PROJECT DEEP-DIVE</span>
                         <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2" id="heading-2">
                             프로젝트 상세 소개
                             및 실시간 미리보기</h1>
@@ -95,13 +94,13 @@
                             class="px-6 py-3 rounded-xl border border-white bg-white text-black font-bold text-sm transition-all flex items-center gap-3 shadow-lg shadow-white/5"
                             id="tab-btn-haevichi" onclick="selectProjectDetail('haevichi')" role="tab" type="button">
                             <i class="fa-solid fa-hotel text-xs"></i>
-                            <span>1. 해비치 호텔 &amp; 리조트</span>
+                            <span>01. 해비치 호텔 &amp; 리조트</span>
                         </button>
                         <button aria-controls="detail-byheydey" aria-selected="false"
                             class="px-6 py-3 rounded-xl border border-neutral-800 bg-neutral-900 text-neutral-400 font-medium text-sm hover:border-neutral-600 hover:text-white transition-all flex items-center gap-3"
                             id="tab-btn-byheydey" onclick="selectProjectDetail('byheydey')" role="tab" type="button">
                             <i class="fa-solid fa-couch text-xs"></i>
-                            <span>2. 바이헤이데이 (ByHeyDey)</span>
+                            <span>02. 바이헤이데이 (ByHeyDey)</span>
                         </button>
                     </div>
                 </div>
@@ -176,8 +175,13 @@
                 <div class="page-section" id="haevichi-overview">
                     <!-- Overview Header -->
                     <div class="flex flex-col gap-8">
+                        <div class="flex items-center gap-4 mb-2">
+                            <span
+                                class="w-8 h-8 rounded-lg bg-white text-black font-black flex items-center justify-center text-base underline ">◇</span>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">프로젝트 소개</h2>
+                        </div>
                         <div class="glass-panel p-8 rounded-2xl border border-neutral-800">
-                            <span class="text-xs font-mono text-neutral-500 block mb-2">// 01. OVERVIEW</span>
+                            <span class="text-xs font-mono kicker block mb-2">// 01. OVERVIEW</span>
                             <h3 class="text-2xl font-bold text-white mb-6">해비치 호텔 &amp; 리조트 (Haevichi Hotel &amp;
                                 Resort)
                             </h3>
@@ -204,8 +208,8 @@
                         <div
                             class="glass-panel p-8 rounded-2xl border border-neutral-800 flex flex-col justify-between">
                             <div>
-                                <span class="text-xs font-mono text-neutral-500 block mb-2">// TECH STACK</span>
-                                <h4 class="text-lg font-bold text-white mb-6">핵심 기술 스택</h4>
+                                <span class="text-xs font-mono kicker block mb-2">// 02. TECH STACK</span>
+                                <h3 class="text-xl font-bold text-white mb-6">핵심 기술 스택</h3>
                                 <div class="space-y-4">
                                     <div class="flex items-center justify-between border-b border-neutral-800/80 pb-3">
                                         <span class="text-xs text-neutral-300">Markup &amp; Styling</span>
@@ -236,10 +240,15 @@
                     </div>
                 </div>
                 <div class="project-detail-spacer" id="haevichi-features">
+                    <div class="flex items-center gap-4 mb-10">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-white text-black font-black flex items-center justify-center text-base underline ">◇</span>
+                        <h2 class="text-2xl font-bold text-white tracking-tight">프로젝트 소개</h2>
+                    </div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <!-- Key Features & Design Highlights -->
                         <div class="glass-panel p-7 rounded-2xl border border-neutral-800">
-                            <span class="text-xs font-mono text-neutral-500 block mb-3">// KEY FEATURES</span>
+                            <span class="text-xs font-mono kicker block mb-3">// 03. KEY FEATURES</span>
                             <h3 class="text-xl font-bold text-white mb-5">주요 기능 및 구현 하이라이트</h3>
                             <div class="grid grid-cols-1 gap-4">
                                 <div
@@ -288,7 +297,7 @@
 
                         <!-- Challenges & Engineering Problem Solving -->
                         <div class="glass-panel p-7 rounded-2xl border border-neutral-800">
-                            <span class="text-xs font-mono text-neutral-500 block mb-3">// CHALLENGES &amp;
+                            <span class="text-xs font-mono kicker block mb-3">// 04. CHALLENGES &amp;
                                 SOLUTIONS</span>
                             <h3 class="text-xl font-bold text-white mb-5">개발 과정에서의 이슈 및 해결 방안</h3>
                             <div class="space-y-4">
@@ -335,7 +344,7 @@
                     <!-- Overview Header -->
                     <div class="flex flex-col gap-8">
                         <div class="glass-panel p-8 rounded-2xl border border-neutral-800">
-                            <span class="text-xs font-mono text-neutral-500 block mb-2">// 02. OVERVIEW</span>
+                            <span class="text-xs font-mono kicker block mb-2">// 01. OVERVIEW</span>
                             <h3 class="text-2xl font-bold text-white mb-6">바이헤이데이 (ByHeyDey) 라이프스타일 가구</h3>
                             <p class="text-neutral-300 text-sm leading-relaxed mb-6 font-light">
                                 '바이헤이데이(ByHeyDey)'는 미니멀한 디자인과 기능성을 동시에 갖춘 라이프스타일 가구 브랜드입니다. 모던한 무채색 패브릭 및 우드 텍스처를 웹
@@ -360,8 +369,8 @@
                         <div
                             class="glass-panel p-8 rounded-2xl border border-neutral-800 flex flex-col justify-between">
                             <div>
-                                <span class="text-xs font-mono text-neutral-500 block mb-2">// TECH STACK</span>
-                                <h4 class="text-lg font-bold text-white mb-6">핵심 기술 스택</h4>
+                                <span class="text-xs font-mono kicker block mb-2">// 02. TECH STACK</span>
+                                <h3 class="text-xl font-bold text-white mb-6">핵심 기술 스택</h3>
                                 <div class="space-y-4">
                                     <div class="flex items-center justify-between border-b border-neutral-800/80 pb-3">
                                         <span class="text-xs text-neutral-300">Markup &amp; Styling</span>
@@ -394,7 +403,7 @@
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <!-- Key Features & Design Highlights -->
                         <div class="glass-panel p-7 rounded-2xl border border-neutral-800">
-                            <span class="text-xs font-mono text-neutral-500 block mb-3">// KEY FEATURES</span>
+                            <span class="text-xs font-mono kicker block mb-3">// 03. KEY FEATURES</span>
                             <h3 class="text-xl font-bold text-white mb-5">주요 기능 및 구현 하이라이트</h3>
                             <div class="grid grid-cols-1 gap-4">
                                 <div
@@ -445,7 +454,7 @@
 
                         <!-- Development Highlights -->
                         <div class="glass-panel p-7 rounded-2xl border border-neutral-800">
-                            <span class="text-xs font-mono text-neutral-500 block mb-3">// CHALLENGES &amp;
+                            <span class="text-xs font-mono kicker block mb-3">// 04. CHALLENGES &amp;
                                 SOLUTIONS</span>
                             <h3 class="text-xl font-bold text-white mb-5">개발 과정에서의 이슈 및 해결 방안</h3>
                             <div class="space-y-4">
@@ -493,7 +502,8 @@
     </div>
 
     <script defer src="./stars.js"></script>
-<script defer src="./planets.js?v=20261028"></script>
-<script defer src="./projects.js"></script>
+    <script defer src="./planets.js?v=20261016-wheel-slow"></script>
+    <script defer src="./projects.js"></script>
 </body>
+
 </html>

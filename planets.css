@@ -53,10 +53,10 @@
 /* 위치는 planets.js가 화면 가장자리를 도는 궤도 위에서 매 프레임 계산합니다 */
 
 /* 행성별 크기 (실제 크기 순서를 유지) */
-.planet--jupiter { --d: 17rem;   --glow: rgba(255, 186, 120, .7); --float: driftA; --dur: 19s; --delay: -4s; }
-.planet--uranus  { --d: 10rem; --glow: rgba(140, 228, 238, .7); --float: driftB; --dur: 22s; --delay: -9s; }
-.planet--mercury { --d: 7.5rem;  --glow: rgba(225, 220, 210, .6); --float: driftC; --dur: 16s; --delay: -2s; }
-.planet--saturn  { --d: 12.5rem; --disc: .4167; --ar: 2.0339; --glow: rgba(244, 218, 160, .65); --float: driftD; --dur: 24s; --delay: -12s; }
+.planet--jupiter { --d: 7.48rem;   --glow: rgba(255, 186, 120, .7); --float: driftA; --dur: 19s; --delay: -4s; }
+.planet--uranus  { --d: 3.84rem;   --glow: rgba(140, 228, 238, .7); --float: driftB; --dur: 22s; --delay: -9s; }
+.planet--mercury { --d: 2.88rem;    --glow: rgba(225, 220, 210, .6); --float: driftC; --dur: 16s; --delay: -2s; }
+.planet--saturn  { --d: 4.224rem;  --disc: .4167; --ar: 2.0339; --glow: rgba(244, 218, 160, .65); --float: driftD; --dur: 24s; --delay: -12s; }
 
 .planet-img {
     display: block;
@@ -324,10 +324,10 @@ html.planet-reveal body > *:not(.planet-fly) { transition: opacity 1.2s ease; }
 }
 @media (max-width: 767px) {
     :root { --nav-r: 1rem; --page-top: 5rem; }
-    .planet--jupiter { --d: 11rem; }
-    .planet--uranus  { --d: 7rem; }
-    .planet--mercury { --d: 5.2rem; }
-    .planet--saturn  { --d: 8.4rem; }
+    .planet--jupiter { --d: 4.4rem; }
+    .planet--uranus  { --d: 2.16rem; }
+    .planet--mercury { --d: 1.6rem; }
+    .planet--saturn  { --d: 2.56rem; }
     .section-nav { right: .35rem; gap: .35rem; }
     .section-star { width: 30px; height: 30px; }
     .section-star-shape { width: 21px; height: 21px; }
@@ -340,7 +340,7 @@ html.planet-reveal body > *:not(.planet-fly) { transition: opacity 1.2s ease; }
 
 /* 섹션 단위로 딱딱 넘어가는 스크롤 (내용이 화면보다 길면 섹션이 늘어나며 그 안에서는 자유 스크롤) */
 @media (max-width: 1023px) {
-    html { scroll-snap-type: y mandatory; }
+    html { scroll-snap-type: y proximity; }
     .page-section,
     .project-detail-spacer {
         scroll-snap-align: start;
@@ -464,3 +464,6 @@ html.planet-reveal body > *:not(.planet-fly) { transition: opacity 1.2s ease; }
 
 /* 거의 보이지 않는(흰색 2%) 큰 블러 + 무한 애니메이션 배경 장식은 GPU만 쓰므로 숨김 */
 .blur-3xl.animate-pulse-glow { display: none; }
+
+/* 섹션 위 "// ..." 작은 설명: 메인 첫 화면(// portfolio.init())과 같은 민트색 */
+.kicker { color: #5eead4; }

@@ -311,6 +311,158 @@
     // 뒤로가기(bfcache)로 돌아왔을 때 전환 상태를 깨끗이 되돌립니다.
     window.addEventListener('pageshow', (e) => { if (e.persisted) reset(); });
 
+    /* ---------- 휠 섹션 이동: 별 배경의 워프와 맞춰 페이지 자체도 관성 있게 이동 ----------
+       기본 휠 스크롤은 브라우저/장치마다 즉시 이동하므로, 데스크톱에서는 한 번의 휠 입력을
+       다음 섹션 목표로 바꾸고 requestAnimationFrame 기반 easing으로 이동시킵니다. */
+    function setupSmoothSectionWheel() {
+        if (reduce.matches || window.matchMedia('(max-width: 1023px)').matches) return;
+
+        let rafId = 0;
+        let animating = false;
+        let targetIndex = -1;
+        let startTime = 0;
+        let startY = 0;
+        let endY = 0;
+        let duration = 380;
+        // 한 번의 휠 동작은 한 섹션만 이동합니다. 이동 중/관성 휠 입력은 버리고,
+        // 휠 입력이 잠잠해진 뒤에만 다음 동작을 받을 수 있도록 잠금 처리합니다.
+        let wheelLocked = false;
+        let unlockTimer = 0;
+        let lastWheelAt = 0;
+        const WHEEL_IDLE_MS = 260;
+
+        function scheduleWheelUnlock() {
+            clearTimeout(unlockTimer);
+            unlockTimer = setTimeout(() => {
+                if (animating) {
+                    scheduleWheelUnlock();
+                    return;
+                }
+                const idleFor = performance.now() - lastWheelAt;
+                if (idleFor < WHEEL_IDLE_MS) {
+                    scheduleWheelUnlock();
+                    return;
+                }
+                wheelLocked = false;
+            }, WHEEL_IDLE_MS);
+        }
+
+        const getSections = () => Array.from(document.querySelectorAll('#main .page-section, #main .project-detail-spacer'))
+            .filter((el) => el.offsetParent !== null && el.getBoundingClientRect().height > 0);
+
+        const getTops = (list) => {
+            const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+            return list.map((el) => Math.max(0, Math.min(el.getBoundingClientRect().top + window.scrollY, maxY)));
+        };
+
+        function nearestIndex(tops, y) {
+            let idx = 0;
+            let distance = Infinity;
+            tops.forEach((top, i) => {
+                const d = Math.abs(top - y);
+                if (d < distance) { distance = d; idx = i; }
+            });
+            return idx;
+        }
+
+        function animateToIndex(list, tops, index) {
+            if (!list.length) return;
+            targetIndex = Math.max(0, Math.min(list.length - 1, index));
+            const nextY = tops[targetIndex];
+            const currentY = window.scrollY;
+            if (Math.abs(nextY - currentY) < 2) {
+                cancelAnimationFrame(rafId);
+                animating = false;
+                window.scrollTo(0, nextY);
+                scheduleWheelUnlock();
+                return;
+            }
+
+            cancelAnimationFrame(rafId);
+            startY = currentY;
+            endY = nextY;
+            startTime = performance.now();
+            // 반응은 즉시 시작하고, 거리가 멀어도 지나치게 느려지지 않게 제한합니다.
+            duration = Math.max(280, Math.min(430, Math.abs(endY - startY) * 0.42));
+            animating = true;
+
+            const frame = (now) => {
+                const t = Math.min(1, (now - startTime) / duration);
+                // 빠르게 출발하고 도착 직전에 부드럽게 감속
+                const eased = 1 - Math.pow(1 - t, 4);
+                window.scrollTo(0, startY + (endY - startY) * eased);
+                if (t < 1) {
+                    rafId = requestAnimationFrame(frame);
+                } else {
+                    window.scrollTo(0, endY);
+                    animating = false;
+                    targetIndex = -1;
+                    scheduleWheelUnlock();
+                }
+            };
+            rafId = requestAnimationFrame(frame);
+        }
+
+        window.addEventListener('wheel', (e) => {
+            if (e.ctrlKey || Math.abs(e.deltaY) <= Math.abs(e.deltaX) || Math.abs(e.deltaY) < 2) return;
+            if (e.target && e.target.closest('textarea, input, select, [data-native-wheel], .overflow-y-auto, .overflow-auto')) return;
+
+            // 애니메이션/휠 관성이 끝날 때까지 입력을 소비해 추가 섹션 점프를 막습니다.
+            if (wheelLocked) {
+                e.preventDefault();
+                lastWheelAt = performance.now();
+                scheduleWheelUnlock();
+                return;
+            }
+
+            const list = getSections();
+            if (list.length < 2) return;
+            const tops = getTops(list);
+            const direction = e.deltaY > 0 ? 1 : -1;
+            const y = window.scrollY;
+
+            // 애니메이션 중에도 휠 방향을 즉시 반영해 목표를 갱신합니다.
+            const baseIndex = animating && targetIndex >= 0 ? targetIndex : nearestIndex(tops, y);
+            let nextIndex = baseIndex + direction;
+
+            // 위로 휠을 돌렸을 때 현재 섹션의 시작점에 아직 도달하지 않았다면
+            // 먼저 현재 섹션의 시작점으로 부드럽게 돌아갑니다.
+            if (!animating && direction < 0) {
+                const near = nearestIndex(tops, y);
+                if (y - tops[near] > 36) nextIndex = near;
+                else nextIndex = near - 1;
+            }
+            // 아래 방향은 다음 섹션으로 즉시 이동
+            nextIndex = Math.max(0, Math.min(list.length - 1, nextIndex));
+            if (nextIndex === baseIndex && !animating) return;
+
+            e.preventDefault();
+            wheelLocked = true;
+            lastWheelAt = performance.now();
+            animateToIndex(list, tops, nextIndex);
+            scheduleWheelUnlock();
+        }, { passive: false });
+
+        window.addEventListener('keydown', (e) => {
+            if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key)) {
+                cancelAnimationFrame(rafId);
+                animating = false;
+                targetIndex = -1;
+                wheelLocked = false;
+                clearTimeout(unlockTimer);
+            }
+        });
+        window.addEventListener('resize', () => {
+            if (animating) {
+                cancelAnimationFrame(rafId);
+                animating = false;
+                targetIndex = -1;
+                wheelLocked = false;
+                clearTimeout(unlockTimer);
+            }
+        }, { passive: true });
+    }
+
     /* ---------- 별 섹션 네비 ---------- */
     let observer = null;
     let sections = [];
@@ -384,14 +536,14 @@
     }
 
 
-    /* ---------- 배경의 별처럼: 네 행성이 화면 가장자리를 따라 공전 (오른쪽일수록 빠르게) ---------- */
-    const BASE_OMEGA = Math.PI * 2 / 150;  // 모든 행성 같은 속도 (약 150초에 한 바퀴)
-    const SPEED_BIAS = 0;                  // 0 = 위치와 상관없이 같은 속도 (오른쪽만 빠르게 하려면 0.3 정도)
-    const N = 4;                           // 궤도 모양: 클수록 사각형에 가까운 둥근 사각형
-    const VISIBLE = 0.62;                  // 행성 지름 중 화면 안쪽으로 보이는 비율
+    /* ---------- 배경의 별처럼: 네 행성이 화면 가장자리를 따라 중심 기준 시계 방향(오른쪽 방향)으로 공전 ---------- */
+    const BASE_OMEGA = Math.PI * 2 / 85;   // 기준 속도 (약 85초에 한 바퀴)
+    const SPEED_BIAS = 0.2;                // 오른쪽 끝 = 1.2배, 왼쪽 끝 = 0.8배 (차이 1.5배)
+    const N = 4;                           // 궤도 모양: 위쪽에 모인 납작한 둥근 사각형
     const deg = (v) => v * Math.PI / 180;
     // 시작 자리: 왼쪽 / 위 왼쪽 / 위 오른쪽 / 오른쪽 (화면 좌표계: 시계 방향이 +)
-    const HOME = [deg(158), deg(238), deg(318), deg(38)];   // 80° 간격
+    // 시작 자리: 왼쪽 / 위 왼쪽 / 위 오른쪽 / 오른쪽 (화면 좌표계: 시계 방향이 +)
+    const HOME = [deg(188), deg(243), deg(297), deg(352)];
     let orbitFrozen = root.classList.contains('planet-arriving');
     let amp = orbitFrozen ? 0 : 1;         // 둥둥 흔들림 세기 (도착 안착 중에는 0)
     let lastT = 0;
@@ -446,6 +598,11 @@
         const vw = window.innerWidth;
         const vh = window.innerHeight;
         const fs = cache.fs;
+        // 궤도: 화면 화면 중앙 기준 큰 둥근 사각형 (위쪽은 오른쪽으로, 아래쪽은 왼쪽으로 돕니다)
+        const rx = vw / 2 - 5.6 * fs;
+        const ry = vh / 2 - 6.2 * fs;      // 위쪽 줄이 화면 맨 위에 바짝 붙도록
+        const cx = vw / 2;
+        const cy = vh / 2;                 // 화면 중앙 기준으로 한 바퀴
         const geo = {};
         MENU.forEach((item) => {
             const el = planetEls[item.key];
@@ -453,15 +610,14 @@
             const w = cache.w[item.key];
             const h = cache.h[item.key];
             const d = w * item.disc;
-            const off = d * VISIBLE - d / 2;                 // 가장자리 → 행성 중심
             const a = theta[item.key];
             const ca = Math.cos(a), sa = Math.sin(a);
             const k = 1 / Math.pow(Math.pow(Math.abs(ca), N) + Math.pow(Math.abs(sa), N), 1 / N);
             geo[item.key] = {
                 el, w, h, ca,
-                r: Math.max(d / 2, w * 0.3),                 // 토성은 고리까지 감안
-                x: vw / 2 + (vw / 2 - off) * ca * k,
-                y: vh / 2 + (vh / 2 - off) * sa * k
+                r: Math.max(d / 2, w * 0.42),               // 토성은 고리까지 감안
+                x: cx + rx * ca * k,
+                y: cy + ry * sa * k
             };
         });
 
@@ -473,8 +629,10 @@
             if (!me || !ahead) return;
             if (moving && !still) {
                 const gap = Math.hypot(ahead.x - me.x, ahead.y - me.y);
-                const need = me.r + ahead.r + 5 * fs;        // 흔들림 여유 포함
-                const slow = Math.min(1, Math.max(0.12, (gap - need) / (need * 0.6)));
+                const rr = me.r + ahead.r;
+                const hard = rr + 2.2 * fs;                  // 이 거리 안에서는 멈춤 (흔들림 여유 포함)
+                const soft = rr + 6 * fs;                    // 이 거리부터 서서히 감속
+                const slow = Math.min(1, Math.max(0, (gap - hard) / (soft - hard)));
                 theta[key] += dt * BASE_OMEGA * (1 + SPEED_BIAS * me.ca) * slow;
             }
         });
@@ -640,6 +798,7 @@
     function init() {
         buildPlanets();
         setupBounce();
+        setupSmoothSectionWheel();
         buildBurger();
         preloadBig();
         setupOrbit();

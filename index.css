@@ -2,7 +2,7 @@
     --accent-1: #6d80c9;
     --accent-2: #7c5bc9;
     --accent-3: #8f5fd1;
-    --accent-grad: linear-gradient(135deg, #6d80c9 0%, #7c5bc9 50%, #8f5fd1 100%);
+    --accent-grad: linear-gradient(135deg, #8f5fd1 0%, #6d80c9 65%, #5eead4 100%);
     --accent-text: #e7e5ee;
 
     /* 헤더 / 푸터 배경색 */
@@ -132,7 +132,7 @@ body {
     html {
         --fit-ref: 920;
         font-size: clamp(11px, calc(100vh * 16 / var(--fit-ref)), 16px);
-        scroll-snap-type: y mandatory;
+        scroll-snap-type: y proximity;
     }
     /* .project-detail-spacer(프로젝트 상세의 주요기능·이슈 블록)도 정지 지점으로 등록해
        두번째 섹션(개요)에서 스크롤을 이어갈 때 중간 단계 없이 푸터로 바로 건너뛰며
@@ -267,7 +267,7 @@ button {
 }
 .bg-white {
     background: var(--accent-grad) !important;
-    color: #ffffff !important;
+    color: #fefefe !important;
 }
 .border-white {
     border-color: var(--accent-2) !important;
