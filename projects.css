@@ -19,6 +19,11 @@ body {
     overflow-x: hidden;
 }
 
+.bg-mine1{background-color: #5eead4;}
+.bg-mine2{background-color: #6d80c9;}
+.bg-mine3{background-color: #8f5fd1;}
+
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
