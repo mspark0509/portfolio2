@@ -54,6 +54,8 @@
     let skip = 0;
     let resizeTimer = 0;
     let lastTs = performance.now();
+    let lastRenderTs = 0;
+    const MIN_RENDER_INTERVAL = 1000 / 60; // 고주사율 화면에서도 별 캔버스는 최대 60fps로 렌더링
     let lastScrollTs = lastTs;
     let lastScrollY = window.scrollY || 0;
     let warpV = 0;                       // 현재 별 이동 속도(px/ms, 화면 y 기준: 음수 = 위로)
@@ -170,8 +172,9 @@
         R = Math.hypot(W, H) / 2 + 40;
         L = R * 2;
 
-        // 화면에 보이는 별 밀도는 기존(약 1500개 상한)과 같게 유지
-        const visible = Math.min(1500, Math.floor(W * H / 720));
+        // 화면에 보이는 별 수를 기존 기준보다 약 300개 줄입니다.
+        // 별밭은 화면 바깥까지 덮으므로 실제 배열에는 보이는 별보다 더 많이 생성됩니다.
+        const visible = Math.max(120, Math.min(1200, Math.floor(W * H / 720) - 300));
         const count = Math.min(9000, Math.ceil(visible * (L * L) / (W * H)));
         const bigCount = Math.max(3, Math.round(count * 0.005));
 
@@ -303,13 +306,18 @@
 
     function frame(ts) {
         raf = 0;
-        if (reducedMotion.matches) return;
+        if (reducedMotion.matches || document.hidden) return;
+        // 다음 프레임은 문서가 보이는 동안에만 예약합니다. 숨겨진 탭에서
+        // 매 프레임 콜백을 계속 예약하던 동작을 막아 CPU 사용을 줄입니다.
         raf = requestAnimationFrame(frame);
-        if (document.hidden) return;
         // 행성 전환으로 화면이 완전히 가려진 동안은 별을 그리지 않고, 전환 중에는 2프레임에 한 번만 그려 부담을 줄입니다.
         const cls = document.documentElement.classList;
         if (cls.contains('planet-cover')) { lastTs = ts; return; }
         if (cls.contains('planet-travel') && (skip ^= 1)) { lastTs = ts; return; }
+        // 120/144Hz 디스플레이에서 별 배경이 화면 주사율만큼 매번 수천 개를 다시 그리지 않도록
+        // 배경 렌더링만 60fps로 제한합니다. 페이지의 실제 스크롤/입력 주사율은 제한하지 않습니다.
+        if (lastRenderTs && ts - lastRenderTs < MIN_RENDER_INTERVAL - 0.5) return;
+        lastRenderTs = ts;
 
         // 스크롤 속도 → 워프 속도 (아래로 스크롤 = 별은 위로)
         const sy = window.scrollY || 0;
@@ -336,6 +344,7 @@
     function start() {
         if (reducedMotion.matches || raf) return;
         lastTs = lastScrollTs = performance.now();
+        lastRenderTs = 0;
         lastScrollY = window.scrollY || 0;
         warpV = rawV = 0;
         raf = requestAnimationFrame(frame);
@@ -360,11 +369,17 @@
     window.addEventListener('pointerleave', () => { mouse.active = false; }, { passive: true });
     document.documentElement.addEventListener('mouseleave', () => { mouse.active = false; });
     document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) {
-            lastTs = lastScrollTs = performance.now();
-            lastScrollY = window.scrollY || 0;
-            warpV = rawV = 0;
+        if (document.hidden) {
+            if (raf) cancelAnimationFrame(raf);
+            raf = 0;
+            return;
         }
+        // 탭 복귀 시 시간차로 별이 순간 이동하는 현상을 방지하고 애니메이션을 재개합니다.
+        lastTs = lastScrollTs = performance.now();
+        lastRenderTs = 0;
+        lastScrollY = window.scrollY || 0;
+        warpV = rawV = 0;
+        start();
     });
 
     if (typeof reducedMotion.addEventListener === 'function') {

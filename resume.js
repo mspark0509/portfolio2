@@ -1,12 +1,23 @@
 // ===== 공통 페이지 기능 =====
 
-// Scroll Progress Tracker
-window.addEventListener('scroll', () => {
-    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+// Scroll Progress Tracker — 프레임당 최대 한 번만 DOM을 갱신합니다.
+let scrollProgressTicking = false;
+function updateScrollProgress() {
     const progress = document.getElementById('scrollProgress');
-    if (progress) progress.style.width = scrolled + '%';
+    if (!progress) {
+        scrollProgressTicking = false;
+        return;
+    }
+    const root = document.documentElement;
+    const height = root.scrollHeight - root.clientHeight;
+    const scrolled = height > 0 ? ((window.scrollY || root.scrollTop) / height) * 100 : 0;
+    progress.style.width = scrolled + '%';
+    scrollProgressTicking = false;
+}
+window.addEventListener('scroll', () => {
+    if (scrollProgressTicking) return;
+    scrollProgressTicking = true;
+    requestAnimationFrame(updateScrollProgress);
 }, { passive: true });
 
 // Mobile Menu Toggle
@@ -54,15 +65,19 @@ function handleContactSubmit(e) {
 }
 
 // Toast Notification System
+let toastTimer = 0;
 function showToast(msg) {
     const toast = document.getElementById('toast');
     const toastMsg = document.getElementById('toastMessage');
     if (!toast || !toastMsg) return;
-    toastMsg.innerText = msg;
+    toastMsg.textContent = msg;
     toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
 
-    setTimeout(() => {
+    // 연속 호출 시 이전 타이머가 새 토스트를 조기에 닫지 않도록 하나만 유지합니다.
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
         toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+        toastTimer = 0;
     }, 3500);
 }
 

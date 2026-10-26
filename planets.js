@@ -27,6 +27,17 @@
 
     let travelling = false;
     const planetEls = {};
+    // 메뉴에 포인터가 올라오거나 키보드 포커스가 들어오면 전환용 원본 이미지를 미리 요청합니다.
+    // 실제 전환 시점의 이미지 다운로드 대기를 줄이되, 모든 대형 이미지를 처음부터 동시에 받지는 않습니다.
+    const planetImagePreloads = new Map();
+    function preloadPlanetImage(item) {
+        if (planetImagePreloads.has(item.key)) return planetImagePreloads.get(item.key);
+        const image = new Image();
+        image.decoding = 'async';
+        image.src = IMG_DIR + item.img + '.webp';
+        planetImagePreloads.set(item.key, image);
+        return image;
+    }
 
     function span(cls) {
         const s = document.createElement('span');
@@ -88,6 +99,8 @@
             el.appendChild(lab);
 
             el.addEventListener('click', (e) => onPlanetClick(e, item, el));
+            el.addEventListener('pointerenter', () => preloadPlanetImage(item), { passive: true });
+            el.addEventListener('focus', () => preloadPlanetImage(item), { passive: true });
 
             planetEls[item.key] = el;
             nav.appendChild(el);
@@ -121,11 +134,13 @@
         img.style.height = H + 'px';
         img.style.marginLeft = (-W / 2) + 'px';
         img.style.marginTop = (-H / 2) + 'px';
-        const lit = document.createElement('img');
+        // 메뉴 hover/focus로 준비한 이미지를 전환에도 재사용해 중복 이미지 디코딩을 줄입니다.
+        const lit = planetImagePreloads.get(item.key) || new Image();
         lit.className = 'fly-img';
         lit.alt = '';
         lit.draggable = false;
-        lit.src = IMG_DIR + item.img + '.webp';
+        if (!lit.src) lit.src = IMG_DIR + item.img + '.webp';
+        if (!planetImagePreloads.has(item.key)) planetImagePreloads.set(item.key, lit);
         const dark = document.createElement('img');
         dark.className = 'fly-img fly-img--dark';
         dark.alt = '';
@@ -147,12 +162,24 @@
         return { fly, img, W, H, vw, vh };
     }
 
-    function whenReady(el) {
+    function whenReady(el, timeoutMs = 650) {
         const img = el._ready || el;
-        if (img.complete && img.naturalWidth) return Promise.resolve();
-        return new Promise((res) => {
-            img.addEventListener('load', res, { once: true });
-            img.addEventListener('error', res, { once: true });
+        if (img.complete) return Promise.resolve(Boolean(img.naturalWidth));
+        return new Promise((resolve) => {
+            let settled = false;
+            const finish = (loaded) => {
+                if (settled) return;
+                settled = true;
+                window.clearTimeout(timer);
+                img.removeEventListener('load', onLoad);
+                img.removeEventListener('error', onError);
+                resolve(loaded);
+            };
+            const onLoad = () => finish(Boolean(img.naturalWidth));
+            const onError = () => finish(false);
+            const timer = window.setTimeout(() => finish(false), timeoutMs);
+            img.addEventListener('load', onLoad, { once: true });
+            img.addEventListener('error', onError, { once: true });
         });
     }
 
@@ -207,23 +234,23 @@
         const a = img.animate([
             { transform: `translate3d(0px, 0px, 0) scale(${fly._F})` },
             { transform: `translate3d(${dx}px, ${dy}px, 0) scale(${s1})` }
-        ], { duration: 1700, easing: 'cubic-bezier(.5,0,.15,1)', fill: 'forwards' });
+        ], { duration: 800, easing: 'cubic-bezier(.5,0,.15,1)', fill: 'forwards' });
         // 멀어지며 현재 페이지 행성은 밝게, 나머지는 어둡게 자리 잡습니다.
         setTimeout(() => root.classList.remove('planet-cover'), 180);   // 화면이 밝아지기 시작하면 별 그리기 재개
         fly._dark.style.opacity = '0';
-        fly._dark.animate([{ opacity: 0 }, { opacity: lit ? 0 : 1 }], { duration: 1700, easing: 'ease-in', fill: 'forwards' });
+        fly._dark.animate([{ opacity: 0 }, { opacity: lit ? 0 : 1 }], { duration: 800, easing: 'ease-in', fill: 'forwards' });
 
         // 행성이 멀어지는 동안 화면이 다시 밝아집니다.
         fly._dim.animate([
             { opacity: DARK },
             { opacity: 0 }
-        ], { duration: 600, easing: 'cubic-bezier(.1,.7,.3,1)', fill: 'forwards' });
+        ], { duration: 420, easing: 'cubic-bezier(.1,.7,.3,1)', fill: 'forwards' });
 
         return a.finished.catch(() => {}).then(() => {
             el.classList.remove('is-arriving', 'is-flying');
             return new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res)));
         }).then(() => {
-            const fade = fly.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 250, fill: 'forwards' });
+            const fade = fly.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, fill: 'forwards' });
             return fade.finished.catch(() => {});
         }).then(() => fly.remove());
     }
@@ -250,12 +277,12 @@
         travelling = true;
         const start = el.querySelector('.planet-img').getBoundingClientRect();
         const { fly, img, W, vw, vh } = makeFly(item);
-        await Promise.race([whenReady(img), new Promise((res) => setTimeout(res, 1200))]);
+        await whenReady(img, 600);
 
         el.classList.add('is-flying');
         root.classList.add('planet-travel');
 
-        await orbit(fly, img, W, start, vw, vh, 3600);
+        await orbit(fly, img, W, start, vw, vh, 1900);
 
         if (item.href) {
             try { sessionStorage.setItem('planetArrive', item.key); } catch (_) {}
@@ -274,6 +301,7 @@
         root.classList.remove('planet-travel', 'planet-arriving', 'planet-reveal', 'planet-cover');
         document.querySelectorAll('.planet.is-flying, .planet.is-arriving').forEach((p) => p.classList.remove('is-flying', 'is-arriving'));
         document.querySelectorAll('.planet-fly').forEach((f) => f.remove());
+        scheduleOrbitFrame();
     }
 
     async function playArrival() {
@@ -285,27 +313,39 @@
             orbitFrozen = false;
             root.classList.remove('planet-arriving');
             if (el) el.classList.remove('is-arriving');
+            scheduleOrbitFrame();
             return;
         }
         root.classList.add('planet-cover');
         const { fly, img, W } = makeFly(item);
         fly._dim.style.opacity = DARK;
-        await Promise.race([whenReady(img), new Promise((res) => setTimeout(res, 1500))]);
+        await whenReady(img, 650);
         // 페이지 로딩(Tailwind 계산·폰트 등)이 끝난 뒤에 움직이기 시작해야 끊기지 않습니다. 너무 오래 걸리면 2.5초 뒤 그냥 시작.
-        await Promise.race([
-            new Promise((res) => {
-                const go = () => requestAnimationFrame(() => requestAnimationFrame(res));
-                if (document.readyState === 'complete') go();
-                else window.addEventListener('load', go, { once: true });
-            }),
-            new Promise((res) => setTimeout(res, 2500))
-        ]);
+        await new Promise((resolve) => {
+            let settled = false;
+            let timeout = 0;
+            const cleanup = () => {
+                window.clearTimeout(timeout);
+                window.removeEventListener('load', onLoad);
+            };
+            const finish = () => {
+                if (settled) return;
+                settled = true;
+                cleanup();
+                resolve();
+            };
+            const onLoad = () => requestAnimationFrame(() => requestAnimationFrame(finish));
+            timeout = window.setTimeout(finish, 1000);
+            if (document.readyState === 'complete') onLoad();
+            else window.addEventListener('load', onLoad, { once: true });
+        });
         // 본문이 행성 뒤에서 천천히 나타나도록
         root.classList.add('planet-reveal');
         root.classList.remove('planet-arriving');
         await settle(fly, img, W, el, item.key === current);
         orbitFrozen = false;
         root.classList.remove('planet-reveal');
+        scheduleOrbitFrame();
     }
 
     // 뒤로가기(bfcache)로 돌아왔을 때 전환 상태를 깨끗이 되돌립니다.
@@ -315,21 +355,28 @@
        기본 휠 스크롤은 브라우저/장치마다 즉시 이동하므로, 데스크톱에서는 한 번의 휠 입력을
        다음 섹션 목표로 바꾸고 requestAnimationFrame 기반 easing으로 이동시킵니다. */
     function setupSmoothSectionWheel() {
-        if (reduce.matches || window.matchMedia('(max-width: 1023px)').matches) return;
-
+        const desktopWheel = window.matchMedia('(min-width: 1024px)');
+        const originalScrollSnapType = root.style.scrollSnapType;
+        // 데스크톱에서는 JS가 섹션 이동을 직접 보간하므로 브라우저의 CSS scroll-snap과
+        // 동시에 동작하지 않게 합니다. 모바일/모션 감소 설정에서는 기존 네이티브 동작을 유지합니다.
+        const syncScrollSnapMode = () => {
+            root.style.scrollSnapType = (!reduce.matches && desktopWheel.matches)
+                ? 'none'
+                : originalScrollSnapType;
+        };
         let rafId = 0;
         let animating = false;
         let targetIndex = -1;
         let startTime = 0;
         let startY = 0;
         let endY = 0;
-        let duration = 380;
+        let duration = 300;
         // 한 번의 휠 동작은 한 섹션만 이동합니다. 이동 중/관성 휠 입력은 버리고,
         // 휠 입력이 잠잠해진 뒤에만 다음 동작을 받을 수 있도록 잠금 처리합니다.
         let wheelLocked = false;
         let unlockTimer = 0;
         let lastWheelAt = 0;
-        const WHEEL_IDLE_MS = 260;
+        const WHEEL_IDLE_MS = 170;
 
         function scheduleWheelUnlock() {
             clearTimeout(unlockTimer);
@@ -347,13 +394,43 @@
             }, WHEEL_IDLE_MS);
         }
 
-        const getSections = () => Array.from(document.querySelectorAll('#main .page-section, #main .project-detail-spacer'))
-            .filter((el) => el.offsetParent !== null && el.getBoundingClientRect().height > 0);
+        // 섹션 목록과 위치를 휠 이벤트마다 다시 조회하면, 입력이 빠르게 연속될 때
+        // getBoundingClientRect()/offsetParent가 반복 실행되어 스타일/레이아웃 계산을 유발할 수 있습니다.
+        // 페이지 레이아웃이 바뀔 때만 캐시를 무효화하고, 다음 프레임에서 한 번 갱신합니다.
+        let sectionCache = { list: [], tops: [], dirty: true };
+        let sectionCacheRaf = 0;
 
-        const getTops = (list) => {
+        function refreshSectionCache() {
+            const list = Array.from(document.querySelectorAll('#main .page-section, #main .project-detail-spacer'))
+                .filter((el) => el.offsetParent !== null && el.getBoundingClientRect().height > 0);
             const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-            return list.map((el) => Math.max(0, Math.min(el.getBoundingClientRect().top + window.scrollY, maxY)));
-        };
+            const tops = list.map((el) => Math.max(0, Math.min(el.getBoundingClientRect().top + window.scrollY, maxY)));
+            sectionCache = { list, tops, dirty: false };
+            return sectionCache;
+        }
+
+        function invalidateSectionCache() {
+            sectionCache.dirty = true;
+            if (sectionCacheRaf) return;
+            sectionCacheRaf = requestAnimationFrame(() => {
+                sectionCacheRaf = 0;
+                if (!animating) refreshSectionCache();
+            });
+        }
+
+        // 초기 위치를 한 번만 계산하고, 크기 변경/콘텐츠 재배치 때만 갱신합니다.
+        refreshSectionCache();
+        const mainForSectionCache = document.getElementById('main');
+        let sectionResizeObserver = null;
+        if (mainForSectionCache && 'ResizeObserver' in window) {
+            sectionResizeObserver = new ResizeObserver(invalidateSectionCache);
+            sectionResizeObserver.observe(mainForSectionCache);
+            sectionCache.list.forEach((el) => sectionResizeObserver.observe(el));
+        }
+        window.addEventListener('load', invalidateSectionCache, { once: true, passive: true });
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(invalidateSectionCache).catch(() => {});
+        }
 
         function nearestIndex(tops, y) {
             let idx = 0;
@@ -383,7 +460,7 @@
             endY = nextY;
             startTime = performance.now();
             // 반응은 즉시 시작하고, 거리가 멀어도 지나치게 느려지지 않게 제한합니다.
-            duration = Math.max(280, Math.min(430, Math.abs(endY - startY) * 0.42));
+            duration = Math.max(240, Math.min(340, Math.abs(endY - startY) * 0.34));
             animating = true;
 
             const frame = (now) => {
@@ -403,7 +480,9 @@
             rafId = requestAnimationFrame(frame);
         }
 
-        window.addEventListener('wheel', (e) => {
+        const handleSectionWheel = (e) => {
+            // 이 핸들러는 데스크톱 커스텀 스크롤이 활성화된 경우에만 등록합니다.
+            // 모바일/모션 감소 환경에 passive:false 리스너를 남겨 브라우저 스크롤을 막지 않습니다.
             if (e.ctrlKey || Math.abs(e.deltaY) <= Math.abs(e.deltaX) || Math.abs(e.deltaY) < 2) return;
             if (e.target && e.target.closest('textarea, input, select, [data-native-wheel], .overflow-y-auto, .overflow-auto')) return;
 
@@ -415,9 +494,10 @@
                 return;
             }
 
-            const list = getSections();
+            const cached = sectionCache.dirty ? refreshSectionCache() : sectionCache;
+            const list = cached.list;
+            const tops = cached.tops;
             if (list.length < 2) return;
-            const tops = getTops(list);
             const direction = e.deltaY > 0 ? 1 : -1;
             const y = window.scrollY;
 
@@ -441,7 +521,28 @@
             lastWheelAt = performance.now();
             animateToIndex(list, tops, nextIndex);
             scheduleWheelUnlock();
-        }, { passive: false });
+        };
+
+        let wheelListenerAttached = false;
+        function syncWheelMode() {
+            syncScrollSnapMode();
+            const shouldAttach = !reduce.matches && desktopWheel.matches;
+            if (shouldAttach && !wheelListenerAttached) {
+                window.addEventListener('wheel', handleSectionWheel, { passive: false });
+                wheelListenerAttached = true;
+            } else if (!shouldAttach && wheelListenerAttached) {
+                window.removeEventListener('wheel', handleSectionWheel);
+                wheelListenerAttached = false;
+                cancelAnimationFrame(rafId);
+                animating = false;
+                targetIndex = -1;
+                wheelLocked = false;
+                clearTimeout(unlockTimer);
+            }
+        }
+        syncWheelMode();
+        desktopWheel.addEventListener('change', syncWheelMode);
+        reduce.addEventListener('change', syncWheelMode);
 
         window.addEventListener('keydown', (e) => {
             if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key)) {
@@ -453,6 +554,8 @@
             }
         });
         window.addEventListener('resize', () => {
+            syncWheelMode();
+            invalidateSectionCache();
             if (animating) {
                 cancelAnimationFrame(rafId);
                 animating = false;
@@ -461,6 +564,13 @@
                 clearTimeout(unlockTimer);
             }
         }, { passive: true });
+
+        window.addEventListener('beforeunload', () => {
+            if (sectionCacheRaf) cancelAnimationFrame(sectionCacheRaf);
+            if (sectionResizeObserver) sectionResizeObserver.disconnect();
+            clearTimeout(unlockTimer);
+            cancelAnimationFrame(rafId);
+        }, { once: true });
     }
 
     /* ---------- 별 섹션 네비 ---------- */
@@ -547,6 +657,7 @@
     let orbitFrozen = root.classList.contains('planet-arriving');
     let amp = orbitFrozen ? 0 : 1;         // 둥둥 흔들림 세기 (도착 안착 중에는 0)
     let lastT = 0;
+    let orbitRaf = 0;
     const theta = {};
     let ring = [];                         // 궤도 순서(앞사람 = 다음 항목)
     const wobble = {};
@@ -564,10 +675,12 @@
             };
         });
         measure();
-        window.addEventListener('resize', measure, { passive: true });
+        window.addEventListener('resize', () => { measure(); scheduleOrbitFrame(); }, { passive: true });
         if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
         window.addEventListener('load', measure, { once: true });
-        requestAnimationFrame(orbitFrame);
+        document.addEventListener('visibilitychange', scheduleOrbitFrame);
+        if (typeof compact.addEventListener === 'function') compact.addEventListener('change', scheduleOrbitFrame);
+        scheduleOrbitFrame();
     }
 
     // 크기/글자 크기는 리사이즈 때만 다시 읽습니다 (매 프레임 레이아웃 계산 방지).
@@ -586,9 +699,24 @@
         });
     }
 
+    function scheduleOrbitFrame() {
+        if (orbitRaf || document.hidden || compact.matches) return;
+        orbitRaf = requestAnimationFrame(orbitFrame);
+    }
+
     function orbitFrame(t) {
-        requestAnimationFrame(orbitFrame);
+        orbitRaf = 0;
         if (document.hidden || compact.matches) { lastT = 0; return; }
+        // 화면 전환 오버레이가 활성화되면 RAF 루프를 완전히 멈춥니다.
+        // reset()/playArrival() 종료 시 조건을 확인해 다시 예약합니다.
+        const transitionClasses = root.classList;
+        if (transitionClasses.contains('planet-travel') ||
+            transitionClasses.contains('planet-cover') ||
+            transitionClasses.contains('planet-arriving') ||
+            transitionClasses.contains('planet-reveal')) {
+            lastT = 0;
+            return;
+        }
         const dt = lastT ? Math.min(0.1, (t - lastT) / 1000) : 0;
         lastT = t;
         const moving = !orbitFrozen && !travelling;
@@ -654,6 +782,7 @@
             if (st.up !== up) { st.up = up; g.el.classList.toggle('is-up', up); }
             if (st.lx !== lx) { st.lx = lx; g.el.style.setProperty('--lx', lx + 'px'); }
         });
+        scheduleOrbitFrame();
     }
 
     /* ---------- 모바일: 오른쪽 위 햄버거 메뉴 ---------- */
@@ -779,28 +908,11 @@
         window.addEventListener('touchcancel', end, { passive: true });
     }
 
-    /* ---------- 큰 행성 이미지를 한가할 때 미리 받아 디코딩 (클릭 순간 끊김 방지) ---------- */
-    const bigImgs = [];
-    function preloadBig() {
-        if (compact.matches) return;
-        const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 1500));
-        const run = () => MENU.forEach((m) => {
-            const im = new Image();
-            im.decoding = 'async';
-            im.src = IMG_DIR + m.img + '.webp';
-            if (im.decode) im.decode().catch(() => {});
-            bigImgs.push(im);                // 참조를 잡아 두어 디코딩된 비트맵이 버려지지 않게
-        });
-        if (document.readyState === 'complete') idle(run);
-        else window.addEventListener('load', () => idle(run), { once: true });
-    }
-
     function init() {
         buildPlanets();
         setupBounce();
         setupSmoothSectionWheel();
         buildBurger();
-        preloadBig();
         setupOrbit();
         buildSectionNav();
 
